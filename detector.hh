@@ -13,11 +13,11 @@ public:
 	~MySensentiveDetector();
 
 	void Eltis(G4Step* aStep, G4TouchableHistory* ROhist, G4Track* track);
-	void Cherenkov(G4Step* aStep, G4TouchableHistory* ROhist);
+	//void Cherenkov(G4Step* aStep, G4TouchableHistory* ROhist);
 
 private:
 	virtual G4bool ProcessHits(G4Step*, G4TouchableHistory*);
-	
+	G4int n = 0;
 	// Sensor efficiency part, to be continue
 };
 

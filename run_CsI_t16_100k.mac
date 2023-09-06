@@ -1,0 +1,23 @@
+/run/numberOfThreads 16
+/run/initialize
+
+#Enable command echo
+#/control/verbose 2
+
+#Set the decay particle as Na22
+/gps/particle ion
+/gps/ion 11 22
+
+#Source position region
+/gps/pos/type Volume
+/gps/pos/shape Cylinder
+/gps/pos/centre 0 0 0 cm
+/gps/pos/radius 9.53/2 mm
+/gps/pos/halfz 0.0001 mm
+
+#Set the energy distribution of Source, Mono (single value)
+/gps/ene/type Mono
+/gps/ene/mono 0. keV
+
+#Commands below are independent of gps
+/run/beamOn 100000

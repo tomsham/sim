@@ -13,9 +13,10 @@
 #include "action.hh"
 #include "G4GeometryManager.hh"
 
-int main(int argc, char** argv)
+int main(int argc, char** argv)	// argc = argument count, argv = argument vector, https://www.ibm.com/docs/en/i/7.1?topic=functions-main-function
 {
-	#ifdef G4MULTITHREADED
+	
+	#ifdef G4MULTITHREADED		//Check Installed Geant4 version
 		G4MTRunManager* runManager = new G4MTRunManager();
 	#else
 		G4RunManager* runManager = new G4RunManager();

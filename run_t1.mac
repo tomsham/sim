@@ -1,6 +1,6 @@
 /run/numberOfThreads 1
 /run/initialize
-/gun/energy 50 GeV
+#/gun/energy 50 GeV
 /run/beamOn 1
 #/gun/momentumAmp 1. GeV
 #/run/beamOn 2
