@@ -1,0 +1,23 @@
+#The one Simulation
+
+#Setting
+/run/initialize	
+/control/verbose 2
+/run/initialize
+
+#Set the decay particle as Na22
+/gps/particle ion 
+/gps/ion 11 22 
+
+#source position DONE
+/gps/pos/type Volume
+/gps/pos/shape Cylinder
+/gps/pos/centre 0 0 0 cm
+/gps/pos/radius 2 mm
+/gps/pos/halfz 0.01 mm
+
+#Set its energy distribution
+#energy distribution
+/gps/ene/type Mono
+/gps/ene/mono  0. keV
+

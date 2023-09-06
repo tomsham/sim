@@ -1,0 +1,20 @@
+/control/verbose 2
+/run/initialize
+
+
+/gps/particle ion 
+/gps/ion 11 22 
+
+
+
+#source position DONE
+/gps/pos/type Volume
+/gps/pos/shape Cylinder
+/gps/pos/centre 0 0 0 cm
+/gps/pos/radius 4.0/20/2 mm
+/gps/pos/halfz 0.01/20 mm
+
+#energy distribution
+/gps/ene/type Arb
+/gps/hist/file spectrum.dat
+/gps/hist/inter Exp

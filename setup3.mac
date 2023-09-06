@@ -1,0 +1,16 @@
+/run/initialize	
+
+/control/verbose 2
+/run/initialize
+
+
+/gps/particle ion 
+/gps/ion 11 22 
+
+
+
+#energy distribution
+/gps/ene/type Arb
+/gps/hist/file spectrum.dat
+/gps/hist/inter Exp
+

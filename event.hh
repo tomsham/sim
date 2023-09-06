@@ -2,21 +2,23 @@
 #define EVENT_HH
 
 #include "G4UserEventAction.hh"
-#include "G4Event.hh"
 
 #include "run.hh"
 
 class MyEventAction : public G4UserEventAction
 {
 public:
-	MyEventAction(MyRunAction*);
-	~MyEventAction();
+    MyEventAction(MyRunAction* runAction);
+    virtual ~MyEventAction();
 
-	virtual void BeginOfEventAction(const G4Event*);
-	virtual void EndOfEventAction(const G4Event*);
+    virtual void BeginOfEventAction(const G4Event* event);
+    virtual void EndOfEventAction(const G4Event* event);
 
-	void AddEdep(G4double edep) { fEdep += edep; }
+    void AddEdep(G4double edep) { this->edep += edep; }
+
 private:
-	G4double fEdep;
+    MyRunAction* runAction;
+    G4double edep;
 };
+
 #endif

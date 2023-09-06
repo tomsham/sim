@@ -4,21 +4,19 @@
 #include "G4VSensitiveDetector.hh"
 #include "G4RunManager.hh"
 #include "G4SystemOfUnits.hh"
-#include "run.hh"
 
-class MySensentiveDetector : public G4VSensitiveDetector
+#include "G4AnalysisManager.hh"
+#include "G4PhysicsOrderedFreeVector.hh"
+class MySensitiveDetector : public G4VSensitiveDetector
 {
 public:
-	MySensentiveDetector(G4String);
-	~MySensentiveDetector();
-
-	void Eltis(G4Step* aStep, G4TouchableHistory* ROhist, G4Track* track);
-	void Cherenkov(G4Step* aStep, G4TouchableHistory* ROhist);
-
+    MySensitiveDetector(G4String);
+    ~MySensitiveDetector();
+    
 private:
-	virtual G4bool ProcessHits(G4Step*, G4TouchableHistory*);
-	
-	// Sensor efficiency part, to be continue
+    virtual G4bool ProcessHits(G4Step *, G4TouchableHistory *);
+    
+    G4PhysicsOrderedFreeVector *quEff;
 };
 
 #endif
