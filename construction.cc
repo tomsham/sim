@@ -72,7 +72,7 @@ void MyDetectorConstruction::DefineMaterials()
 
 
     //Define Materials
-    worldMat = nist->FindOrBuildMaterial("G4_AIR");
+    worldMat = nist->FindOrBuildMaterial("G4_Galactic");
     mptWorld->AddProperty("RINDEX", energy, rindexWorld, 2);
     worldMat->SetMaterialPropertiesTable(mptWorld);
 
