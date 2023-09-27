@@ -2,7 +2,7 @@
 
 MyPrimaryGenerator::MyPrimaryGenerator()
 {
-	// In Geant4, 1 run can contain number of events, 1 event can contain number of particles.
+	// In Geant4, 1 run contains number of events, 1 event can contain number of particles.
 	// G4ParticleGun(number of particles for 1 event), here set 1 particle for 1 event
 	//fParticleGun = new G4ParticleGun(1);
 	fParticleGun = new G4GeneralParticleSource();

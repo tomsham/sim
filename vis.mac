@@ -1,3 +1,6 @@
+#Enable command echo
+/control/verbose 2
+
 /vis/open OGL
 /vis/viewer/set/projection p
 /vis/viewer/set/viewpointVector 1 1 1
@@ -11,7 +14,5 @@
 /vis/scene/add/axes
 /vis/scene/add/eventID
 /vis/scene/endOfEventAction accumulate 20
-# trajectory with Blue is positive charge and Red is negative charge
-
-#/vis/modeling/trajectories/create/drawByParticleID Normal
+#	Trajectory with Blue color is positive charge, Red color is negative charge, Green color is neutral charge
 

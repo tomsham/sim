@@ -93,7 +93,6 @@ void MySensentiveDetector::Eltis(G4Step* aStep, G4TouchableHistory* ROhist, G4Tr
 
     G4int evt = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
     G4AnalysisManager *man = G4AnalysisManager::Instance();
-    man->FillNtupleSColumn(0, 0, Particle_Name);
 
     std::string partical_name[] = {"e+", "e-", "gamma", "nu_e", "Ne22", "Ne22[1274.577]", "Na22" };
     int length_str = sizeof(partical_name)/sizeof(std::string); // length_str = 7
@@ -108,11 +107,11 @@ void MySensentiveDetector::Eltis(G4Step* aStep, G4TouchableHistory* ROhist, G4Tr
             G4double theta = direction.theta(), phi = direction.phi();
             G4ThreeVector momentum = track->GetMomentum();
             G4double px = momentum.x(); G4double py = momentum.y(); G4double pz = momentum.z(); //The momentum when it pass the detector
-            man->FillNtupleDColumn(i+1, 0, ekin);
-            man->FillNtupleDColumn(i+1, 1, etot);
-            man->FillNtupleDColumn(i+1, 2, x);
-            man->FillNtupleDColumn(i+1, 3, y);
-            man->FillNtupleDColumn(i+1, 4, z);
+            man->FillNtupleDColumn(i+1, 0, ekin/MeV);	//MeV
+            man->FillNtupleDColumn(i+1, 1, etot/MeV);	//MeV
+            man->FillNtupleDColumn(i+1, 2, x/mm);		//mm
+            man->FillNtupleDColumn(i+1, 3, y/mm);		//mm
+            man->FillNtupleDColumn(i+1, 4, z/mm);		//mm
             man->FillNtupleDColumn(i+1, 5, px);
             man->FillNtupleDColumn(i+1, 6, py);
             man->FillNtupleDColumn(i+1, 7, pz);
@@ -122,6 +121,7 @@ void MySensentiveDetector::Eltis(G4Step* aStep, G4TouchableHistory* ROhist, G4Tr
             man->AddNtupleRow(i+1);
         }
     }
+	man->FillNtupleSColumn(0, 0, Particle_Name);
     man->FillNtupleSColumn(0, 1, postProcessName);
     man->FillNtupleDColumn(0, 2, evt);
     man->FillNtupleSColumn(0, 3, Particle_type);

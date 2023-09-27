@@ -1,11 +1,8 @@
-#Enable command echo
-/control/verbose 2
-
-#Set the decay particle as Na22
+#Set the General Particle Source to be Na22
 /gps/particle ion
 /gps/ion 11 22
 
-#Source position region
+#Position region of generated gps, should equal to the active region
 /gps/pos/type Volume
 /gps/pos/shape Cylinder
 /gps/pos/centre 0 0 0 cm

@@ -4,47 +4,6 @@
 MyRunAction::MyRunAction()
 {
 	G4AnalysisManager *man = G4AnalysisManager::Instance();
-	// Monte Carlo data (Real position)
-	// CreateNtuple(Name, Title)
-	/*// For CsI Detector
-	man->CreateNtuple("Real_Hits", "Real_Hits");
-	man->CreateNtupleIColumn("Event_ID");		//Intege
-	man->CreateNtupleDColumn("posReal_X");		//Double
-	man->CreateNtupleDColumn("posReal_Y");
-	man->CreateNtupleDColumn("posReal_Z");
-	man->CreateNtupleDColumn("e_tot");
-	man->CreateNtupleDColumn("e_kin");
-	man->FinishNtuple(0);
-
-	man->CreateNtuple("Detector_Hits", "Detector_Hits");
-	man->CreateNtupleIColumn("Event_ID");
-	man->CreateNtupleDColumn("posDetector_X");
-	man->CreateNtupleDColumn("posDetector_Y");
-	man->CreateNtupleDColumn("posDetector_Z");
-	man->FinishNtuple(1);
-
-	man->CreateNtuple("Scoring_Crystal", "Scoring_Crystal");
-	man->CreateNtupleIColumn("fEdep");
-	man->FinishNtuple(2);
-	*/
-
-	/*// My Ntuple for Gamma leakage
-	man->CreateNtuple("Generator", "1MeV_gamma");
-	man->CreateNtupleDColumn("Direction_X");
-	man->CreateNtupleDColumn("Direction_Y");
-	man->CreateNtupleDColumn("Direction_Z");
-	man->CreateNtupleDColumn("e_tot_MeV");
-	man->FinishNtuple(0);
-
-	man->CreateNtuple("logicDetector_Shell", "Real_Hits");
-	man->CreateNtupleIColumn("particle_name");
-	man->CreateNtupleDColumn("posReal_X_cm");
-	man->CreateNtupleDColumn("posReal_Y_cm");
-	man->CreateNtupleDColumn("posReal_Z_cm");
-	man->CreateNtupleDColumn("e_tot_MeV");
-	man->FinishNtuple(1);
-	*/
-
     EltisFinal(man);
 }
 
@@ -73,6 +32,7 @@ void MyRunAction::EndOfRunAction(const G4Run* run)
 
 void MyRunAction::EltisFinal(G4AnalysisManager* man)
 {
+    // CreateNtuple(Name, Title)
     man->CreateNtuple("Particles", "Particle Property");
     man->CreateNtupleSColumn("Particle_Name");
     man->CreateNtupleSColumn("Process");
@@ -85,11 +45,11 @@ void MyRunAction::EltisFinal(G4AnalysisManager* man)
     for (int i = 0; i < length_str; i++)
     {
         man->CreateNtuple(partical_name[i], "Particle Property");
-        man->CreateNtupleDColumn("KineticEnergy");
-        man->CreateNtupleDColumn("TotalEnergy");
-        man->CreateNtupleDColumn("PositionX");
-        man->CreateNtupleDColumn("PositionY");
-        man->CreateNtupleDColumn("PositionZ");
+        man->CreateNtupleDColumn("KineticEnergy_MeV");
+        man->CreateNtupleDColumn("TotalEnergy_MeV");
+        man->CreateNtupleDColumn("PositionX_mm");
+        man->CreateNtupleDColumn("PositionY_mm");
+        man->CreateNtupleDColumn("PositionZ_mm");
         man->CreateNtupleDColumn("MomentumX");
         man->CreateNtupleDColumn("MomentumY");
         man->CreateNtupleDColumn("MomentumZ");
