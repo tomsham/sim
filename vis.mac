@@ -1,12 +1,15 @@
-/run/initialize
+#Enable command echo
+/control/verbose 2
+
 /vis/open OGL 
-/vis/viewer/set/viewpointVector 1 1 1
 /vis/drawVolume
-/vis/viewer/set/autoRefresh true
+
+
+#	Trajectory with Blue color is positive charge, Red color is negative charge, Green color is gamma charge, neutrino is yellow
 /vis/scene/add/trajectories smooth
-/vis/scene/add/scale 10 cm
 
-#/vis/scene/add/axes
-
+#/scale [length] [unit] [direction] [red] [green] [blue] [auto|manual] [xmid] [ymid] [zmid] [unit]
+/vis/scene/add/scale 5 cm x 1 0 0 manual -2.5 0 0 cm
+/vis/scene/add/axes
 /vis/scene/add/eventID
-/vis/scene/endOfEventAction accumulate
+/vis/scene/endOfEventAction accumulate 20

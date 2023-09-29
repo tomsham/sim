@@ -1,317 +1,329 @@
 #include "construction.hh"
-//Define global variables
+//This can be modified
 MyDetectorConstruction::MyDetectorConstruction()
 {
-    DefineMaterials();
+	DefineMaterials();
+
+	G4int A = 0;
+	// Change 100x100 before Run Detector
+	thick = 13.*um;		//Thickness of wrapping (m), 13.e-6 m = 13. um
+
+	//################################
+	// #Create the Titanium foil
+	isBareSource = true;//This can be modified			
+	isDisk = true;//This can be modified
+	isRing = true;//This can be modified
+
+	// #Create the Scintillator or Aerogel
+	isSourceScintillator = false;//This can be modified
+	isSourceAerogel=true;//This can be modified
+
+	// #Create the Ideal Detector
+	isShell_Detector = true;//This can be modified
+
+	//Create the actual detector 
+	isCsI = false;//This can be modified
+	
+	
+	logicDetector = NULL;
+	logicDetector_Shell = NULL;
+
+	
+	//Define the dimension of the Foil
+	//#Should not be changed
+	disk_radius = 9.53/2*mm;
+	ring_radius = 19.1/2*mm;
+	disk_height_half = 0.00508*mm;		//The activity is placed between two layers of 0.00508*mm Ti foil which is 0.0102*mm in total
+	ring_height_half = 0.254*mm;		//Supported by two 0.254 mm Ti disks
+
+	//Define Scintillator size, Scintillator are assumed be cylindrical
+
+	G4double Scintillator_height_half=4/2*mm; //This can be modified
+	Scintillator_radius = ring_radius+thick; 
+	Scintillator_height = ring_height_half+Scintillator_height_half;
+	Scintillator_Material=SiO2;
+
+	//Define Aerogel size, Aerogel are assumed be cubic, it dimension should larger than Scintillator
+	Aerogel_size=5.*cm;
+	Aerogel_Material=SiO2;
 
 
-    //User parameters
-    foil_material = Ti_;
-    scintillator_material = SiO2;
-    //Source parameters
-    size_inner_radius = 20. / 2 * mm;
-    size_outer_radius = 29. / 2 * mm;
-    outer_size_of_height = 1. / 2 * mm;
-    inner_size_of_height = 0.01 / 2 * mm;
-    size_Scintillator = size_outer_radius + 1. / 2 * mm;
-    height_of_Scintillator = outer_size_of_height + 4.0 / 2 * mm;
-    height_of_Detector = height_of_Scintillator + 1. / 2 * mm;// or inner_size_of_height;
-
-    nCols = 10;
-    nRows = 10;
-    xWorld = 20.*cm;
-    yWorld = 20.*cm;
-    zWorld = 20.*cm;
-    
-
-    fMessenger = new G4GenericMessenger(this, "/detector/", "Detector Construction");
-    
-    fMessenger->DeclareProperty("nCols", nCols, "Number of cols");
-    fMessenger->DeclareProperty("nRows", nRows, "Number of rows");
-    
-    fMessenger->DeclareProperty("cherenkov", cherenkov, "Activate Chreenkov Detector");
-    fMessenger->DeclareProperty("scintillator", SourceScintillator, "Activate Scintillator");
-    fMessenger->DeclareProperty("Aerogel", SourceAerogel, "Activate Aerogel");
-    fMessenger->DeclareProperty("dielectricMaterial", dielectricMaterial, "Activate dielectricMaterial");
-    fMessenger->DeclareProperty("EnergyDetector(cylindrical)", EnergyDetector_Cylindrical, "Activate EnergyDetector(cylindrical)");
-    fMessenger->DeclareProperty("isCubic_Detector_Demo", isCubic_Detector_Demo, "Toggle Cubic_Detector_Demo");
-	fMessenger->DeclareProperty("isCubic_Detector", isCubic_Detector, "Toggle Cubic_Detector");
-    fMessenger->DeclareProperty("isPET", isPET, "Toggle PET");
+	//Define the size of the world
+	World_size = 0.5*m;//This can be modified 	 
 
 
-
-    dielectricMaterial = false;
-    EnergyDetector_Cylindrical = true;
-    SourceScintillator = false;
-    SourceAerogel = false;
-    cherenkov=false;
-    isCubic_Detector_Demo=false;
-    isCubic_Detector = false;
+	
+	fMessenger = new G4GenericMessenger(this, "/@MyDetector/", "Macros");
+	fMessenger->DeclareProperty("control/execute region_setup.mac", A, "Set the active region (cylinder locate at origin, radius = 9.53/2*mm, half height = 0.0001*mm)");
+	fMessenger->DeclareProperty("control/execute rebuild.mac",A,"Rebuild Selected Physical Volume inside a 1.5*1.5*1.5 m^3 Cubic World contains Air, its center is the origin");
+	fMessenger->DeclareProperty("isBareSource", isBareSource, "Select BareSouce (cylinder locate at origin, radius = 9.53/2*mm, half height = 0.0001*mm)");
+	fMessenger->DeclareProperty("isDisk", isDisk, "Select Disk (cylinder locate at origin, radius = 9.53/2*mm, half height = 0.00508*mm)");
+	fMessenger->DeclareProperty("isRing", isRing, "Select Ring (tube locate at origin, inner radius = 9.53/2*mm, outer radius = 19.1/2*mm, half height = 0.254*mm)");
+	fMessenger->DeclareProperty("isShell_Detector", isShell_Detector, "Construct Shell Detector (spherical shell locate at origin, inner radius = 1*cm, thickness = 0.001*mm)");
+	fMessenger->DeclareProperty("isCsI", isCsI, "Select CsI detector");
 
 }
-
 MyDetectorConstruction::~MyDetectorConstruction()
 {}
-//Define material and its property
+
 void MyDetectorConstruction::DefineMaterials()
 {
-    //Material numerical Properties
-    G4double energy[2] = {1.239841939*eV/0.2, 1.239841939*eV/0.9};
-    G4double rindexAerogel[2] = {1.1, 1.1};
-    G4double rindexWorld[2] = {1.0, 1.0};
-    G4double rindexNaI[2] = { 1.78, 1.78 };
-    G4double reflectivity[2] = { 1.,1. };
-    G4double fraction[2] = { 1.,1. };
+	G4NistManager* nist = G4NistManager::Instance();
 
-    //Define Material Class Property
-    G4NistManager *nist = G4NistManager::Instance();
-    G4MaterialPropertiesTable *mptAerogel = new G4MaterialPropertiesTable();
-    G4MaterialPropertiesTable *mptWorld = new G4MaterialPropertiesTable();
-    G4MaterialPropertiesTable* mptNaI = new G4MaterialPropertiesTable();
-    G4MaterialPropertiesTable* mptMirror = new G4MaterialPropertiesTable();
+	worldMat = nist->FindOrBuildMaterial("G4_Galactic");//This can be modified //G4_AIR or G4_Galactic for vacuum
+	//vacuumMat = nist->FindOrBuildMaterial("G4_Galactic");
 
+	// Aerogel
+	SiO2 = new G4Material("SiO2", 0.125 * g / cm3, 2);
+	SiO2->AddElement(nist->FindOrBuildElement("Si"), 1);
+	SiO2->AddElement(nist->FindOrBuildElement("O"), 2);
 
-    //Define Materials
-    worldMat = nist->FindOrBuildMaterial("G4_Galactic");
-    mptWorld->AddProperty("RINDEX", energy, rindexWorld, 2);
-    worldMat->SetMaterialPropertiesTable(mptWorld);
+	H2O = new G4Material("H2O", 1.000 * g / cm3, 2);
+	H2O->AddElement(nist->FindOrBuildElement("H"), 2);
+	H2O->AddElement(nist->FindOrBuildElement("O"), 1);
 
-    C = nist->FindOrBuildElement("C");
-    
-    
-   
-    H2O = new G4Material("H2O", 1.000*g/cm3, 2);
-    H2O->AddElement(nist->FindOrBuildElement("H"), 2);
-    H2O->AddElement(nist->FindOrBuildElement("O"), 1);
+	C = nist->FindOrBuildElement("C");
 
-    Kapton = nist->FindOrBuildMaterial("G4_KAPTON");
-    
-    SiO2 = new G4Material("SiO2", 0.125*g/cm3, 2);
-    SiO2->AddElement(nist->FindOrBuildElement("Si"), 1);
-    SiO2->AddElement(nist->FindOrBuildElement("O"), 2);
-    
-    Polystyrene = new G4Material("Polystyrene", 1.06 * g / cm3, 2);
-    Polystyrene->AddElement(nist->FindOrBuildElement("C"), 8);
-    Polystyrene->AddElement(nist->FindOrBuildElement("H"), 8);
+	Aerogel = new G4Material("Aerogel", 0.200*g/cm3, 3);
+	Aerogel->AddMaterial(SiO2, 62.5*perCent);
+	Aerogel->AddMaterial(H2O, 37.4*perCent);
+	Aerogel->AddElement(C, 0.1*perCent);
 
-    Aerogel = new G4Material("Aerogel", 0.200*g/cm3, 3);
-    Aerogel->AddMaterial(SiO2, 62.5*perCent);
-    Aerogel->AddMaterial(H2O, 37.4*perCent);
-    Aerogel->AddElement(C, 0.1*perCent);
-    mptAerogel->AddProperty("RINDEX", energy, rindexAerogel, 2);
-    Aerogel->SetMaterialPropertiesTable(mptAerogel);
-    
-    NaI = new G4Material("NaI", 3.67 * g / cm3, 2);
-    NaI->AddElement(nist->FindOrBuildElement("Na"), 1);
-    NaI->AddElement(nist->FindOrBuildElement("I"), 1);
-    mptNaI->AddProperty("RINDEX", energy, rindexNaI, 2);
-    mptNaI->AddProperty("SCINTILLATIONCOMPONENT1", energy,fraction,2);
-    mptNaI->AddConstProperty("SCINTILLATIONYIELD", 38. / keV);
-    mptNaI->AddConstProperty("RESOLUTIONSCALE", 1.);
-    mptNaI->AddConstProperty("SCINTILLATIONTIMECONSTANT1", 250.*ns);
-    mptNaI->AddConstProperty("SCINTILLATIONYIELD1", 1.);
-    NaI->SetMaterialPropertiesTable(mptNaI);
-    
-    NaCl = new G4Material("NaCl", 2.17 * g / cm3, 2);
-    NaCl->AddElement(nist->FindOrBuildElement("Na"), 1);
-    NaCl->AddElement(nist->FindOrBuildElement("Cl"), 4);
-    
-    Ti = nist->FindOrBuildElement("Ti");
-    Ti_ = new G4Material("Ti_", 4.507 * g / cm3, 1);
-    Ti_->AddElement(Ti,1.);
+	G4double energyAerogel[2] = { 1.239841939*eV/0.9, 1.239841939*eV/0.2 };
+	G4double rindexAerogel[2] = { 1.1, 1.1 };
+	G4MaterialPropertiesTable* mptAerogel = new G4MaterialPropertiesTable();
+	mptAerogel->AddProperty("RINDEX", energyAerogel, rindexAerogel, 2);
+	Aerogel->SetMaterialPropertiesTable(mptAerogel);
+	// End Aerogel
 
-    
-    mirrorSurface = new G4OpticalSurface("mirrorSurface");
-    mptMirror->AddProperty("REFLECTIVITY",energy,reflectivity,2);
-    mirrorSurface->SetMaterialPropertiesTable(mptMirror);
-    mirrorSurface->SetType(dielectric_metal);
-    mirrorSurface->SetFinish(ground);
-    mirrorSurface->SetModel(unified);
-    
-}
-//Define source parameters
+	G4double rindexWorld[2] = {1.0, 1.0};
+	G4MaterialPropertiesTable* mptworld = new G4MaterialPropertiesTable();
+	mptworld->AddProperty("RINDEX", energyAerogel, rindexWorld, 2);
+	worldMat->SetMaterialPropertiesTable(mptworld);
 
+	//NaCl
+	NaCl = new G4Material("NaCl", 2.16*g/cm3, 2);
+	NaCl->AddElement(nist->FindOrBuildElement("Na"), 1);
+	NaCl->AddElement(nist->FindOrBuildElement("Cl"), 4);
+	// End NaCl
 
+	// CsI
+	CsI = nist->FindOrBuildMaterial("G4_CESIUM_IODIDE");
+	G4double energyCsI[1] = { 1.239841939*eV/0.31 };	//310nm
+	G4double rindexCsI[1] = { 1.95 };
+	G4MaterialPropertiesTable* mptCsI = new G4MaterialPropertiesTable();
+	mptCsI->AddProperty("RINDEX", energyCsI, rindexCsI, 1);
 
-//Define Mother world
-G4VPhysicalVolume *MyDetectorConstruction::Construct()
-{       
-    /* define a volumn of world contain air, it needs to be include size,what inside the world */
-    /*In general it needs to define three volumne, */
-    /*1st solid volume: tell the size*/
-    /*2nd logical volume: tell what are the material inside the world*/
-    /*3rd physical volume: place volumes into the applications*/
+	/*
+	//Scintillation Test (test data for CsI)
+	G4double scintCsI[1] = {0.1};
+	G4double fractionCsI[1] = { 1.0 };						//Intensity fraction of different wavelengths which are the component of scintillation intensity eg 30./keV
+	mptCsI->AddConstProperty("RESOLUTIONSCALE", 1.);				// AddConstProperty for a number
+	//mptCsI->AddConstProperty("SCINTILLATIONYIELD", 30./keV);
+	mptCsI->AddProperty("SCINTILLATIONCOMPONENT1", energyCsI, fractionCsI, 1);	// AddProperty for a array
+	mptCsI->AddConstProperty("SCINTILLATIONTIMECONSTANT1", 1500.0*ns);	// Time constant is the decay time	
+	mptCsI->AddConstProperty("SCINTILLATIONYIELD1", 30./keV);
+	//End Scintillation Test
+	*/
 
-    /*To define a solid volumne, G4Box("name",half size of x, y, z)*/
-    solidWorld = new G4Box("solidWorld", xWorld, yWorld, zWorld);
-    /*To insert particle inside that solid(physical volume)*/
-    /*G4LogicalVolume("the solid", "the material", "the name")*/
-    logicWorld = new G4LogicalVolume(solidWorld, worldMat, "logicWorld");
-    /*To place it into a Physical Volume */
-    /*G4PVPlacement(rotation, center of coordinate(Use G4ThreeVector(x,y,z)), logic volume, name of the physical world,
-    "Mother logical volume name",boolean,copy number(if need insert this volume multiple time), whether check overlap)*/
-    physWorld = new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicWorld, "physWorld", 0, false, 0, true);
+	CsI->SetMaterialPropertiesTable(mptCsI);
+	// End CsI
 
-    if(isPET){
-        ConstructPET();
-    }
-    if (cherenkov)
-		ConstructCherenkov();
-	if (isCubic_Detector_Demo)
-		ConstructCubic_Detector_Demo();
-	if (isCubic_Detector)
-		ConstructCubic_Detector();
-    if (dielectricMaterial)
-        ConstructDielectric();
-    if (EnergyDetector_Cylindrical)
-        Construct_Energy_detector_Cylindrical();
-    if (SourceScintillator)
-        ConstructSourceScintillator();
-    if (SourceAerogel)
-        ConstructAerogel();
-    return physWorld;
-}
+	// Mylar
+	Mylar = nist->FindOrBuildMaterial("G4_MYLAR");
+	// End Mylar
+	
 
-//Define Ideal Detector
-void MyDetectorConstruction::Construct_Energy_detector_Cylindrical() {
+	// From Eltis
+	Kapton = nist->FindOrBuildMaterial("G4_KAPTON");
 
-    G4Tubs* InnerTube = new G4Tubs("InnerTube", 0., size_Scintillator , height_of_Detector, 0. * deg, 360. * deg);
-    G4Tubs* OuterTube = new G4Tubs("OuterTube", 0., size_Scintillator + 2. * mm, height_of_Detector + 1. * mm, 0. * deg, 360. * deg);
-    G4SubtractionSolid* CylindricalDetector = new G4SubtractionSolid("CylindricalDetector", OuterTube, InnerTube);
-    logicEnergyDetector_cylindrical = new G4LogicalVolume(CylindricalDetector, worldMat, "CylindricallogicEnergyDetector");
-    physEnergyDetector_cylindrical = new G4PVPlacement(0, G4ThreeVector(0., 0., 0. * m), logicEnergyDetector_cylindrical, "CylindricalphysEnergyDetector", logicWorld, false, 0, true);
+	Ti = nist->FindOrBuildElement("Ti");
+	Ti_ = new G4Material("Ti_", 4.507*g/cm3, 1);	//The density of G4_Ti is 4.54*g/cm3
+	Ti_->AddElement(Ti,1.);
+	// End Eltis
 
 }
-//Define the foil around the source
-void MyDetectorConstruction::ConstructDielectric() {
-	G4Material* foil_material = Ti_; //Kapton Or Ti_ or worldMat
-	G4ThreeVector Center = G4ThreeVector(0. * m, 0. * m, 0. * m);
-	G4double size_inner_source = 4./2 * mm;
-	G4double size_inner_radius = 20./2 * mm;
-	G4double size_outer_radius = 29./2 * mm;
-	G4double outer_size_of_height = 1./2 * mm;
-	G4double inner_size_of_height = 0.01/2 * mm;
-	G4Tubs* OuterDielectric = new G4Tubs("Outer", size_inner_radius, size_outer_radius, outer_size_of_height, 0. * deg, 360. * deg);
-	G4Tubs* InnerSource = new G4Tubs("source", 0. * nm, size_inner_radius, inner_size_of_height, 0. * deg, 360. * deg);
-	logicDielectric = new G4LogicalVolume(OuterDielectric, foil_material, "logicDielectric");
-	physDielectric = new G4PVPlacement(0, Center, logicDielectric, "physDielectric", logicWorld, false, 0, true);
-	logicSource = new G4LogicalVolume(InnerSource, foil_material,"logicSource");
-	physSource = new G4PVPlacement(0, Center, logicSource, "physSource", logicWorld, false, 0, true);
-}
-void MyDetectorConstruction::ConstructSourceScintillator() {
-    G4Tubs* OuterDielectric = new G4Tubs("Outer", size_inner_radius, size_outer_radius, outer_size_of_height, 0. * deg, 360. * deg);
-    G4Tubs* InnerSource = new G4Tubs("source", 0. * nm, size_inner_radius, inner_size_of_height, 0. * deg, 360. * deg);
-    G4Tubs* BaseSourceScintillator = new G4Tubs("base", 0. * nm, size_Scintillator, height_of_Scintillator, 0. * deg, 360. * deg);
-    G4SubtractionSolid* SourceScintillator_SubtractInner = new G4SubtractionSolid("SourceScintillatorSubtractInner", BaseSourceScintillator, InnerSource);
-    G4SubtractionSolid* SourceScintillator_SubtractOuter = new G4SubtractionSolid("SourceScintillatorSubtractInner", SourceScintillator_SubtractInner, OuterDielectric);
-    
-    
-    logic_SourceScintillator = new G4LogicalVolume(SourceScintillator_SubtractOuter, scintillator_material, "CylindricallogicEnergyDetector");
-    phys_SourceScintillator = new G4PVPlacement(0, G4ThreeVector(0., 0., 0. * m), logic_SourceScintillator, "CylindricalphysEnergyDetector", logicWorld, false, 0, true);
 
-}
-void MyDetectorConstruction::ConstructAerogel() {
-    G4Tubs* OuterDielectric = new G4Tubs("Outer", size_inner_radius, size_outer_radius, outer_size_of_height, 0. * deg, 360. * deg);
-    G4Tubs* InnerSource = new G4Tubs("source", 0. * nm, size_inner_radius, inner_size_of_height, 0. * deg, 360. * deg);
-    Foil_Geometry = new G4UnionSolid("Foil_Geometry", OuterDielectric, InnerSource);
-    //Scintillator
-    G4Tubs* BaseSourceScintillator = new G4Tubs("Base", 0. * nm, size_outer_radius, inner_size_of_height + 1.0 / 2 * mm, 0. * deg, 360. * deg);
-    G4IntersectionSolid* Intersection_Part_Scintillator = new G4IntersectionSolid("Intersection_Part_Scintillator", BaseSourceScintillator, Foil_Geometry);
-    SourceScintillator_SubtractOuter = new G4SubtractionSolid("SourceScintillatorSubtractOuter", BaseSourceScintillator, Intersection_Part_Scintillator);
-    //Aerogel
-    G4Box* BaseSourceAerogel = new G4Box("base", 5. * cm, 5. * cm, 5. * cm);
-    G4SubtractionSolid* SourceAerogel_SubtractInner = new G4SubtractionSolid("SourceAerogelSubtractInner", BaseSourceAerogel, Foil_Geometry);
-    AerogelGeometry = new G4SubtractionSolid("AerogelGeometry", SourceAerogel_SubtractInner, SourceScintillator_SubtractOuter);
-    logic_SourceAerogel = new G4LogicalVolume(AerogelGeometry, SiO2, "logic_SourceAerogel");
-    phys_SourceAerogel = new G4PVPlacement(0, G4ThreeVector(0. * m, 0. * m, 0. * m), logic_SourceAerogel, "phys_SourceAerogel", logicWorld, false, 0, true);
+G4VPhysicalVolume* MyDetectorConstruction::Construct()
+{
 
+	solidWorld = new G4Box("solidWorld", World_size, World_size, World_size);
+
+	logicWorld = new G4LogicalVolume(solidWorld, worldMat, "logicWorld");
+	//logicWorld = new G4LogicalVolume(solidWorld, vacuumMat, "logicWorld");
+	physWorld = new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicWorld, "physWorld", 0, false, 0, true);
+	
+	if (isRing)
+		ConstructRing();
+	if (isDisk)
+		ConstructDisk();
+	if (isBareSource) {
+		if (isDisk)
+			ConstructBareSourceInDisk();
+		else
+			ConstructBareSource();
+	}
+	if (isShell_Detector)
+		Construct_Ideal_Shell_Detector();
+
+	// From Eltis, edited by Tom
+	if (isSourceScintillator)
+		ConstructSourceScintillator();
+	if (isSourceAerogel)
+		ConstructSourceAerogel();
+	// End Eltis
+
+	return physWorld;
 }
 
 void MyDetectorConstruction::ConstructSDandField()
 {
-    MySensitiveDetector *sensDet = new MySensitiveDetector("SensitiveDetector");
-    if (EnergyDetector_Cylindrical) {
-        logicEnergyDetector_cylindrical->SetSensitiveDetector(sensDet);
-    }
+	
+	MySensentiveDetector* sensDet = new MySensentiveDetector("SensitiveDetector");
+	/*if(logicDetector != NULL)
+		logicDetector->SetSensitiveDetector(sensDet);*/
+	if(logicDetector_Shell != NULL)
+		logicDetector_Shell->SetSensitiveDetector(sensDet);
 }
 
-void MyDetectorConstruction::ConstructCubic_Detector()
-{
-	solidDetector = new G4Box("solidDetector", 0.005*m, 0.005*m, 0.005*m);
-	logicDetector = new G4LogicalVolume(solidDetector, worldMat, "logicDetector");
+void MyDetectorConstruction::ConstructRing() {
+	G4Material* RingMat = Ti_;
+	solidRing = new G4Tubs("Ring", disk_radius, ring_radius, ring_height_half, 0. * deg, 360. * deg);
+	logicRing = new G4LogicalVolume(solidRing, RingMat, "logicRing");
+	physRing = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, 0.*m), logicRing, "Ring", logicWorld, false, 0, true);
+}
+void MyDetectorConstruction::ConstructDisk() {
+	G4Material* DiskMat = Ti_;
+	solidDisk = new G4Tubs("Disk", 0.*nm, disk_radius, disk_height_half, 0.*deg, 360.*deg);
+	logicDisk = new G4LogicalVolume(solidDisk, DiskMat, "logicDisk");
+	physDisk = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, 0.*m), logicDisk, "Disk", logicWorld, false, 0, true);
+}
+void MyDetectorConstruction::ConstructBareSource() {
+	solidBareSource = new G4Tubs("Source", 0.*nm, disk_radius, 0.0001*mm, 0.*deg, 360.*deg);
+	logicSource = new G4LogicalVolume(solidBareSource, NaCl, "logicSource");
+	physSource = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, 0.*m), logicSource, "Source", logicWorld, false, 0, true);
+}
+void MyDetectorConstruction::ConstructBareSourceInDisk() {
+	solidBareSource = new G4Tubs("Source", 0.*nm, disk_radius, 0.0001*mm, 0.*deg, 360.*deg);
+	logicSource = new G4LogicalVolume(solidBareSource, NaCl, "logicSource");
+	physSource = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, 0.*m), logicSource, "Source", logicDisk, false, 0, true);
+}
 
-	for (G4int i = 0; i < nCols; i++)
+void MyDetectorConstruction::Construct_Ideal_Shell_Detector() {
+	//Large sphere
+	G4double inner_radius = 15.*cm;
+	G4double outer_radius = inner_radius + 0.001*mm;
+	solidDetector_Shell = new G4Sphere("solidDetector_Shell", inner_radius, outer_radius, 0.*deg, 360.*deg, 0.*deg, 360.*deg);
+	logicDetector_Shell = new G4LogicalVolume(solidDetector_Shell, worldMat, "logicDetector_Shell");
+	physDetector_Shell = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, 0.*m), logicDetector_Shell, "Shell", logicWorld, false, 0, true);
+}
+
+//Design-1 Detector
+void MyDetectorConstruction::ConstructCsI()
+{
+	G4double CsI_sidelength_half = 0.05/2*m;
+	G4double CsI_height_half = 0.5/2*m;
+	solidCsI = new G4Box("solidCsI", CsI_sidelength_half, CsI_sidelength_half,  CsI_height_half);
+	logicCsI = new G4LogicalVolume(solidCsI, CsI, "logicDetector");
+	logicDetector = logicCsI;
+	//fScoringVolume = logicDetector;
+
+	G4double d = 2*(CsI_sidelength_half+thick);	//Distance between 2 CsI (m)
+	G4double nCS = 4;							//Number of Crystals on the Side of Cube
+	G4double nExtra = 1;
+	G4double nCS_H = nCS+nExtra;				//Horizontal, Front, Back, Left, Right
+	G4double nCS_V = nCS+nExtra*2;				//Vertical, Up, Down
+	G4double Cube_side_length = nCS*CsI_sidelength_half+(nCS-0.5)*thick+CsI_height_half;
+	G4double Cube_side_height = nCS*(CsI_sidelength_half+thick)+CsI_height_half;
+
+	//Create Mylar Wrapping as the mother logicVolume, Add CsI(pure) as the daughter logicVolume
+	//Detector_H 
+	solidDetector_H = new G4Box("solidDetector_H", (CsI_sidelength_half+thick)*nCS_H,(CsI_sidelength_half+thick)*nCS, CsI_height_half);
+	logicDetector_F = new G4LogicalVolume(solidDetector_H, Mylar, "logicDetector_F");
+	logicDetector_L = new G4LogicalVolume(solidDetector_H, Mylar, "logicDetector_L");
+	logicDetector_B = new G4LogicalVolume(solidDetector_H, Mylar, "logicDetector_B");
+	logicDetector_R = new G4LogicalVolume(solidDetector_H, Mylar, "logicDetector_R");
+	//Transformation
+	G4Translate3D transZ_H(G4ThreeVector(-(nCS*CsI_sidelength_half+(nCS-0.5)*thick)+(CsI_sidelength_half+thick)*nCS_H, 0*m, Cube_side_length));
+	G4Rotate3D rotY_90(90.*deg, G4ThreeVector(0.,1.,0.));
+	G4Rotate3D rotY_90_2(90.*2*deg, G4ThreeVector(0.,1.,0.));
+	G4Rotate3D rotY_90_3(90.*3*deg, G4ThreeVector(0.,1.,0.));
+	//physDetector_H
+	physDetector_F = new G4PVPlacement(transZ_H, logicDetector_F, "Detector_F", logicWorld, false, 0, true);
+	physDetector_L = new G4PVPlacement((rotY_90)*(transZ_H), logicDetector_L, "Detector_L", logicWorld, false, 0, true);
+	physDetector_B = new G4PVPlacement((rotY_90_2)*(transZ_H), logicDetector_B, "Detector_B", logicWorld, false, 0, true);
+	physDetector_R = new G4PVPlacement((rotY_90_3)*(transZ_H), logicDetector_R, "Detector_R", logicWorld, false, 0, true);
+	
+	G4double StartPoint_X = -nCS_H*(CsI_sidelength_half+thick)+CsI_sidelength_half+thick;		//-Half_length+Half_d
+	G4double StartPoint_Y = -nCS*(CsI_sidelength_half+thick)+CsI_sidelength_half+thick;			//-Half_length+Half_d
+	for (G4int i = 0; i < nCS_H; i++)	//Column
 	{
-		for (G4int j = 0; j < nRows; j++)
+		for (G4int j = 0; j < nCS; j++)	//Row
 		{
-			G4VPhysicalVolume* physDetector_f = new G4PVPlacement(0, G4ThreeVector(-0.5*m+(i+0.5)*m/nCols, -0.5*m+(j+0.5)*m/nRows, 0.505*m), logicDetector, "physDetector_f", logicWorld, false, i*100+j, true);
-			G4VPhysicalVolume* physDetector_b = new G4PVPlacement(0, G4ThreeVector(-0.5*m+(i+0.5)*m/nCols, -0.5*m+(j+0.5)*m/nRows, -0.505*m), logicDetector, "physDetector_b", logicWorld, false, i*100+j, true);
-			G4VPhysicalVolume* physDetector_l = new G4PVPlacement(0, G4ThreeVector(0.505*m, 0.5*m-(j+0.5)*m/nRows, -0.5*m+(i+0.5)*m/nCols), logicDetector, "physDetector_l", logicWorld, false, i*100+j, true);
-			G4VPhysicalVolume* physDetector_r = new G4PVPlacement(0, G4ThreeVector(-0.505*m, 0.5*m-(j+0.5)*m/nRows, -0.5*m+(i+0.5)*m/nCols), logicDetector, "physDetector_r", logicWorld, false, i*100+j, true);
-			G4VPhysicalVolume* physDetector_u = new G4PVPlacement(0, G4ThreeVector(-0.5*m+(i+0.5)*m/nCols, 0.505*m, 0.5*m-(j+0.5)*m/nRows), logicDetector, "physDetector_u", logicWorld, false, i*100+j, true);
-			G4VPhysicalVolume* physDetector_d = new G4PVPlacement(0, G4ThreeVector(-0.5*m+(i+0.5)*m/nCols, -0.505*m, 0.5*m-(j+0.5)*m/nRows), logicDetector, "physDetector_d", logicWorld, false, i*100+j, true);
+			G4Translate3D transZ_CsI(G4ThreeVector(StartPoint_X+i*d, StartPoint_Y+j*d, 0.*m));
+			G4VPhysicalVolume* physDetector_f = new G4PVPlacement(transZ_CsI, logicDetector, "Detector_f", logicDetector_F, false, i*10+j, true);
+			G4VPhysicalVolume* physDetector_l = new G4PVPlacement(transZ_CsI, logicDetector, "Detector_l", logicDetector_L, false, i*10+j, true);
+			G4VPhysicalVolume* physDetector_b = new G4PVPlacement(transZ_CsI, logicDetector, "Detector_b", logicDetector_B, false, i*10+j, true);
+			G4VPhysicalVolume* physDetector_r = new G4PVPlacement(transZ_CsI, logicDetector, "Detector_r", logicDetector_R, false, i*10+j, true);
+		}
+	}
+
+	//Detector_V
+	solidDetector_V = new G4Box("solidDetector_V", (CsI_sidelength_half+thick)*nCS_V,(CsI_sidelength_half+thick)*nCS_V, CsI_height_half);
+	logicDetector_U = new G4LogicalVolume(solidDetector_V, Mylar, "logicDetector_U");
+	logicDetector_D = new G4LogicalVolume(solidDetector_V, Mylar, "logicDetector_D");
+	//Transformation
+	G4Translate3D transZ_V(G4ThreeVector(0*m, 0*m, Cube_side_height));
+	G4Rotate3D rotX_90(90.*deg, G4ThreeVector(1.,0.,0.));
+	G4Rotate3D rotX_270(-90.*deg, G4ThreeVector(1.,0.,0.));
+	//physDetector_H
+	G4VPhysicalVolume* physDetector_U = new G4PVPlacement((rotX_270)*(transZ_V), logicDetector_U, "Detector_U", logicWorld, false, 0, true);
+	G4VPhysicalVolume* physDetector_D = new G4PVPlacement((rotX_90)*(transZ_V), logicDetector_D, "Detector_D", logicWorld, false, 0, true);
+	
+	G4double StartPoint_V = -nCS_V*(CsI_sidelength_half+thick)+CsI_sidelength_half+thick;		//-Half_length+Half_d
+	for (G4int i = 0; i < nCS_V; i++)
+	{
+		for (G4int j = 0; j < nCS_V; j++)
+		{
+			G4Translate3D transZ_CsI(G4ThreeVector(StartPoint_V+i*d, StartPoint_V+j*d, 0*m));
+			G4VPhysicalVolume* physDetector_u = new G4PVPlacement(transZ_CsI, logicDetector, "Detector_u", logicDetector_U, false, i*10+j, true);
+			G4VPhysicalVolume* physDetector_d = new G4PVPlacement(transZ_CsI, logicDetector, "Detector_d", logicDetector_D, false, i*10+j, true);
 		}
 	}
 }
 
-void MyDetectorConstruction::ConstructCubic_Detector_Demo()
-{
-	solidDetector_FB = new G4Box("solidDetector", 0.51*m, 0.51*m, 0.005*m);
-	solidDetector_LR = new G4Box("solidDetector", 0.005*m, 0.51*m, 0.51*m);
-	solidDetector_UD = new G4Box("solidDetector", 0.51*m, 0.005*m, 0.51*m);
-	solidDetector = new G4Box("solidDetector", 0.005*m, 0.005*m, 0.005*m);
+// From Eltis, edited by Tom
+void MyDetectorConstruction::ConstructSourceScintillator() {
+	solidRing = new G4Tubs("Ring", disk_radius, ring_radius, ring_height_half, 0.*deg, 360.*deg);
+	solidDisk = new G4Tubs("Disk", 0.*nm, disk_radius, disk_height_half, 0.*deg, 360.*deg);
+	
+	G4Tubs* BaseSourceScintillator = new G4Tubs("base", 0.*nm, Scintillator_radius, Scintillator_height, 0.*deg, 360.*deg);
 
-	logicDetector_F = new G4LogicalVolume(solidDetector_FB, worldMat, "logicDetector_F");
-	logicDetector_B = new G4LogicalVolume(solidDetector_FB, worldMat, "logicDetector_B");
-	logicDetector_L = new G4LogicalVolume(solidDetector_LR, worldMat, "logicDetector_L");
-	logicDetector_R = new G4LogicalVolume(solidDetector_LR, worldMat, "logicDetector_R");
-	logicDetector_U = new G4LogicalVolume(solidDetector_UD, worldMat, "logicDetector_U");
-	logicDetector_D = new G4LogicalVolume(solidDetector_UD, worldMat, "logicDetector_D");
-	logicDetector = new G4LogicalVolume(solidDetector, worldMat, "logicDetector");
+	G4SubtractionSolid* SourceScintillator_No_Disk = new G4SubtractionSolid("SourceScintillator_No_Disk", BaseSourceScintillator, solidDisk, 0, G4ThreeVector());
+	G4SubtractionSolid* SourceScintillator_No_Disk_Ring = new G4SubtractionSolid("SourceScintillator_No_Disk_Ring", SourceScintillator_No_Disk, solidRing, 0, G4ThreeVector());
 
-	physDetector_F = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, 0.505*m), logicDetector_F, "physDetector_F", logicWorld, false, 0, true);
-	physDetector_B = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, -0.505*m), logicDetector_B, "physDetector_B", logicWorld, false, 0, true);
-	physDetector_L = new G4PVPlacement(0, G4ThreeVector(0.505*m, 0.*m, 0.*m), logicDetector_L, "physDetector_L", logicWorld, false, 0, true);
-	physDetector_R = new G4PVPlacement(0, G4ThreeVector(-0.505*m, 0.*m, 0.*m), logicDetector_R, "physDetector_R", logicWorld, false, 0, true);
-	physDetector_U = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.505*m, 0.*m), logicDetector_U, "physDetector_U", logicWorld, false, 0, true);
-	physDetector_D = new G4PVPlacement(0, G4ThreeVector(0.*m, -0.505*m, 0.*m), logicDetector_D, "physDetector_D", logicWorld, false, 0, true);
+	logic_SourceScintillator = new G4LogicalVolume(SourceScintillator_No_Disk_Ring, Scintillator_Material, "logic_SourceScintillator");
+	phys_SourceScintillator = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, 0.*m), logic_SourceScintillator, "phys_SourceScintillator", logicWorld, false, 0, true);	
 
-	for (G4int i = 0; i < nCols; i++)
-	{
-		for (G4int j = 0; j < nRows; j++)
-		{
-			G4VPhysicalVolume* physDetector_f = new G4PVPlacement(0, G4ThreeVector(-0.5*m+(i+0.5)*m/nCols, -0.5*m+(j+0.5)*m/nRows, 0.*m), logicDetector, "physDetector_f", logicDetector_F, false, i*100+j, true);
-			G4VPhysicalVolume* physDetector_b = new G4PVPlacement(0, G4ThreeVector(-0.5*m+(i+0.5)*m/nCols, -0.5*m+(j+0.5)*m/nRows, 0.*m), logicDetector, "physDetector_b", logicDetector_B, false, i*100+j, true);
-			G4VPhysicalVolume* physDetector_l = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.5*m-(j+0.5)*m/nRows, -0.5*m+(i+0.5)*m/nCols), logicDetector, "physDetector_l", logicDetector_L, false, i*100+j, true);
-			G4VPhysicalVolume* physDetector_r = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.5*m-(j+0.5)*m/nRows, -0.5*m+(i+0.5)*m/nCols), logicDetector, "physDetector_r", logicDetector_R, false, i*100+j, true);
-			G4VPhysicalVolume* physDetector_u = new G4PVPlacement(0, G4ThreeVector(-0.5*m+(i+0.5)*m/nCols, 0.*m, 0.5*m-(j+0.5)*m/nRows), logicDetector, "physDetector_u", logicDetector_U, false, i*100+j, true);
-			G4VPhysicalVolume* physDetector_d = new G4PVPlacement(0, G4ThreeVector(-0.5*m+(i+0.5)*m/nCols, 0.*m, 0.5*m-(j+0.5)*m/nRows), logicDetector, "physDetector_d", logicDetector_D, false, i*100+j, true);
-		}
+
+}
+void MyDetectorConstruction::ConstructSourceAerogel() {
+	solidRing = new G4Tubs("Ring", disk_radius, ring_radius, ring_height_half, 0.*deg, 360.*deg);
+	solidDisk = new G4Tubs("Disk", 0.*nm, disk_radius, disk_height_half, 0.*deg, 360.*deg);
+
+	G4Box* BaseSourceAerogel = new G4Box("solidCsI", Aerogel_size,Aerogel_size, Aerogel_size);
+	G4Tubs* BaseSourceScintillator = new G4Tubs("base", 0. * nm, Scintillator_radius, Scintillator_height, 0. * deg, 360. * deg);
+	if(isSourceScintillator){
+		G4Tubs* BaseSourceScintillator = new G4Tubs("base", 0.*nm, Scintillator_radius, Scintillator_height, 0.*deg, 360.*deg);
+		BaseSourceAerogel_NoScintillator = new G4SubtractionSolid("BaseSourceAerogel_NoScintillator", BaseSourceAerogel, BaseSourceScintillator);
+		logic_SourceAerogel = new G4LogicalVolume(BaseSourceAerogel_NoScintillator, Aerogel_Material, "logic_SourceAerogel");
+		phys_SourceAerogel = new G4PVPlacement(0, G4ThreeVector(0. * m, 0. * m, 0. * m), logic_SourceAerogel, "phys_SourceAerogel", logicWorld, false, 0, true);
 	}
-}
+	else {
+		BaseSourceAerogel_NoScintillator = new G4SubtractionSolid("BaseSourceAerogel_NoScintillator", BaseSourceAerogel, solidRing);
+		BaseSourceAerogel_NoScintillator = new G4SubtractionSolid("BaseSourceAerogel_NoScintillator", BaseSourceAerogel_NoScintillator, solidDisk);
 
-void MyDetectorConstruction::ConstructPET()
-{
-	//G4Tubs(Name, Inner radius, Outer radius, Length, Initial angle, Final angle)
-	//solidPET = new G4Tubs("solidPET", 10*cm, 20*cm, 30*cm, 0*deg, 360*deg);
-	solidPET = new G4Box("solidPET", 5*cm, 5*cm, 6*cm);
-	logicPET = new G4LogicalVolume(solidPET, NaI, "logicPET");
-	fScoringVolume = logicPET;
-	for (G4int i = 0; i < 6; i++)
-	{
-		for (G4int j = 0; j < 16; j++)
-		{
-			G4Rotate3D rotZ(j*360./16*deg, G4ThreeVector(0.,0.,1));
-			G4Translate3D transX_PET(G4ThreeVector(5./tan(22.5/2*deg)*cm+5.*cm, 0*cm, -40*cm+i*15.*cm));
-			G4Transform3D transform_PET = (rotZ)*(transX_PET);
-			physPET = new G4PVPlacement(transform_PET, logicPET, "physPET", logicWorld, false, 0, true);
-		};
-	};
-}
-void MyDetectorConstruction::ConstructCherenkov()
-{
-    solidRadiator = new G4Box("solidRadiator", 0.4 * m, 0.4 * m, 0.01 * m);
-    logicRadiator = new G4LogicalVolume(solidRadiator, Aerogel, "logicRadiator");
-    fScoringVolume = logicRadiator;
-    physRadiator = new G4PVPlacement(0, G4ThreeVector(0., 0., 0.25 * m), logicRadiator, "physRadiator", logicWorld, false, 0, true);
+		logic_SourceAerogel = new G4LogicalVolume(BaseSourceAerogel_NoScintillator, Aerogel_Material, "logic_SourceAerogel");
+		phys_SourceAerogel = new G4PVPlacement(0, G4ThreeVector(0. * m, 0. * m, 0. * m), logic_SourceAerogel, "phys_SourceAerogel", logicWorld, false, 0, true);
+	}
 }

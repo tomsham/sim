@@ -2,21 +2,21 @@
 #define STEPPING_HH
 
 #include "G4UserSteppingAction.hh"
-
-#include "event.hh"
+#include "G4Step.hh"
+#include "G4RunManager.hh"
 #include "construction.hh"
+#include "event.hh"
 
 class MySteppingAction : public G4UserSteppingAction
 {
 public:
-    MySteppingAction(MyEventAction* eventAction);
-    virtual ~MySteppingAction();
+	MySteppingAction(MyEventAction* eventAction);
+	~MySteppingAction();
 
-    virtual void UserSteppingAction(const G4Step*);
+	virtual void UserSteppingAction(const G4Step*);
 
 private:
-    MyEventAction* fEventAction;
-    G4LogicalVolume* scoringVolume;
+	MyEventAction* fEventAction;
 };
 
 #endif

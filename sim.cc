@@ -2,17 +2,20 @@
 
 #include "G4RunManager.hh"
 #include "G4MTRunManager.hh"
-#include "G4UImanager.hh"
+
+#include "G4UIExecutive.hh"
 #include "G4VisManager.hh"
 #include "G4VisExecutive.hh"
-#include "G4UIExecutive.hh"
+#include "G4UImanager.hh"
 
 #include "construction.hh"
 #include "physics.hh"
 #include "action.hh"
 #include "G4GeometryManager.hh"
-int main(int argc, char** argv)
+
+int main(int argc, char** argv)	// argc = argument count, argv = argument vector, https://www.ibm.com/docs/en/i/7.1?topic=functions-main-function
 {
+	
     G4UIExecutive* ui = 0;
     
     #ifdef G4MULTITHREADED
@@ -37,7 +40,7 @@ int main(int argc, char** argv)
     
     if(ui)
     {
-        //UImanager->ApplyCommand("/control/execute vis2.mac");
+        //UImanager->ApplyCommand("/control/execute vis.mac");
         ui->SessionStart();
     }
     else
