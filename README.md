@@ -53,9 +53,12 @@ This is for visualization and is called in "sim.cc"
 15. run_CsI_t16_100k.mac<br>
 This is for running the simulation in batch mode without GUI. It includes "region_setup.mac" and will run the simulation 100k times (create 100k "Run") using 16 threads when it is called.
 
-16. CMakeLists.txt & CMakeSettings.json<br>
+16. default_GPS_setup.mac<br>
+This is for setting the kinetic energy distribution of the G4GeneralParticleSource, which are Mono and 0*keV.
+
+17. CMakeLists.txt & CMakeSettings.json<br>
 The "CMakeLists.txt" contains configuration for CMake compiling.<br>
 The "CMakeSettings.json" contains information that Visual Studio uses for IntelliSense and to construct the command-line arguments that it passes to CMake for a specified configuration and compiler environment.
 
-17. LICENSE & README.md<br>
+18. LICENSE & README.md<br>
 License and readme files.
