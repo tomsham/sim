@@ -12,7 +12,10 @@ public:
 	MySensentiveDetector(G4String);
 	~MySensentiveDetector();
 
-	void Eltis(G4Step* aStep, G4TouchableHistory* ROhist, G4Track* track);
+	void SaveToDataFile(G4Step* aStep, G4TouchableHistory* ROhist, G4Track* track);
+	void SaveToDataFile_Vertex(G4Step* aStep, G4TouchableHistory* ROhist, G4Track* track);
+	void ReadOut(G4Step* aStep, G4Track* track);
+	void ReadOut_Vertex(G4Step *aStep, G4Track *track);
 	//void Cherenkov(G4Step* aStep, G4TouchableHistory* ROhist);
 
 private:

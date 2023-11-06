@@ -1,3 +1,6 @@
+#Same as "runManager->Initialize();" in sim.cc
+/run/initialize
+
 #Enable command echo
 /control/verbose 2
 

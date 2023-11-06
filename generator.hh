@@ -20,10 +20,18 @@ public:
 	MyPrimaryGenerator();
 	~MyPrimaryGenerator();
 	virtual void GeneratePrimaries(G4Event*);
+	void ParticleDefinition();
 
 private:
-	//G4ParticleGun* fParticleGun;
-	G4GeneralParticleSource* fParticleGun;
+	G4ParticleDefinition *fGamma, *fPositron, *fGeantino, *fIon;
+	G4ParticleDefinition *pdParticleGun, *pdParticleSource;			// pd = ParticleDefinition
+	G4ParticleGun *fParticleGun;
+	G4GeneralParticleSource *fParticleSource;
+	G4bool PS_or_PG;
+	G4ThreeVector posParticleGun, momDirectionParticleGun;
+	G4int Z, A;														// Z = Atomic number (Proton Number), A =  Mass number
+	G4double ex_energy;												// ex_energy = Excitation energy
+	G4double momParticleGun, chargeParticleGun, chargeParticleSource;
 };
 
 #endif

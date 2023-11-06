@@ -15,7 +15,8 @@
 
 int main(int argc, char** argv)	// argc = argument count, argv = argument vector, https://www.ibm.com/docs/en/i/7.1?topic=functions-main-function
 {
-	
+	G4Random::setTheSeed(1);	// Set the random seed for whole simulation
+
 	#ifdef G4MULTITHREADED		//Check Installed Geant4 version
 		G4MTRunManager* runManager = new G4MTRunManager();
 	#else
@@ -29,14 +30,15 @@ int main(int argc, char** argv)	// argc = argument count, argv = argument vector
 
 	if (argc == 1)
 	{
-		runManager->Initialize();
+		//runManager->Initialize();
 		G4UIExecutive* ui = new G4UIExecutive(argc, argv);
 
 		G4VisManager* visManager = new G4VisExecutive();
 		visManager->Initialize();
 
 		G4UImanager* UImanager = G4UImanager::GetUIpointer();
-		UImanager->ApplyCommand("/control/execute vis.mac");
+		UImanager->ApplyCommand("/control/execute vis.mac");					// Visualize the Construction of Simulation
+		UImanager->ApplyCommand("/control/execute default_GPS_setup.mac");		// Set the energy distribution of GeneralParticleSource(GPS) to be mono and 0*keV
 		ui->SessionStart();
 	}
 	else
@@ -46,6 +48,7 @@ int main(int argc, char** argv)	// argc = argument count, argv = argument vector
 		G4String filename = argv[1];
 		UImanager->ApplyCommand(command + filename);
 		G4cout << command + filename << G4endl;
+		G4cout << "Random Seed: " << G4Random::getTheSeed() << G4endl;
 		printf("Command is executed");
 	}
 

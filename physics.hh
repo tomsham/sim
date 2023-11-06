@@ -12,6 +12,10 @@ class MyPhysicsList : public G4VModularPhysicsList
 public:
 	MyPhysicsList();
 	~MyPhysicsList();
+
+	/*void ConstructParticle();
+	void ConstructProcess();
+	void SetCuts():*/
 };
 
 #endif

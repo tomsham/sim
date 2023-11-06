@@ -2,7 +2,7 @@
 /run/initialize
 
 #Enable command echo
-/control/verbose 2
+/control/verbose 0
 
 #Set the active region
 /control/execute region_setup.mac
