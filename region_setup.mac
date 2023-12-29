@@ -1,6 +1,7 @@
+#/gps/verbose 2
 #Set the General Particle Source to be Na22
-/gps/particle ion
-/gps/ion 11 22
+#/gps/particle ion
+#/gps/ion 11 22
 
 #Position region of generated gps, should equal to the active region
 /gps/pos/type Volume
@@ -11,4 +12,12 @@
 
 #Set the energy distribution of Source, Mono (single value)
 /gps/ene/type Mono
-/gps/ene/mono 0. keV
+/gps/ene/mono 0. MeV
+
+
+#Set the direction distribution of Source
+/gps/ang/type iso
+#/gps/ang/mintheta 0 degree
+#/gps/ang/maxtheta 180 degree
+#/gps/ang/minphi 0 degree
+#/gps/ang/maxphi 360 degree

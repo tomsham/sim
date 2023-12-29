@@ -70,7 +70,7 @@ void MySensentiveDetector::SaveToDataFile(G4Step* aStep, G4TouchableHistory* ROh
 
     for (int i = 0; i < length_partical_name_list; i++)
     {
-        if (track->GetDefinition()->GetParticleName() == partical_name_list[i]) {
+        if (particle_name == partical_name_list[i]) {
 			G4double ekin = track->GetKineticEnergy();												//Get Kinetic Energy when it hit the detector
 			G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
             G4ThreeVector prePosition = preStepPoint->GetPosition();								//Position when it pass the detector
@@ -112,7 +112,7 @@ void MySensentiveDetector::SaveToDataFile_Vertex(G4Step* aStep, G4TouchableHisto
 
     for (int i = 0; i < length_partical_name_list; i++)
     {
-        if (track->GetDefinition()->GetParticleName() == partical_name_list[i]) {
+        if (particle_name == partical_name_list[i]) {
 			G4double ekin = track->GetVertexKineticEnergy();										//Get Vertex Kinetic Energy when it hit the detector
 			G4ThreeVector Vertex_Position = track->GetVertexPosition();								//Get Vertex Position when it pass the detector
 			G4ThreeVector Vertex_Momentum_Direction = track->GetVertexMomentumDirection();			//Get Vertex Momentum Direction when it pass the detector
@@ -155,7 +155,9 @@ void MySensentiveDetector::SaveToDataFile_Vertex(G4Step* aStep, G4TouchableHisto
 void MySensentiveDetector::ReadOut(G4Step* aStep, G4Track* track) {
     const G4VTouchable *touchable = aStep->GetPreStepPoint()->GetTouchable();
 	G4String Particle_Name = track->GetDefinition()->GetParticleName();
-	G4String CreatorProcessName = track->GetCreatorProcess()->GetProcessName();
+	G4String creator_process_name = "NULL";
+	if (track->IsGoodForTracking())
+		creator_process_name = track->GetCreatorProcess()->GetProcessName();				//Get the process name of the vertex of track 
 	G4String physVol_name = touchable->GetVolume()->GetName();
 	G4String logicVol_name = touchable->GetVolume()->GetLogicalVolume()->GetName();
 	G4String motherlogicVol_name = touchable->GetVolume()->GetMotherLogical()->GetName();
@@ -165,7 +167,7 @@ void MySensentiveDetector::ReadOut(G4Step* aStep, G4Track* track) {
 	G4double theta = track->GetMomentumDirection().theta(), phi = track->GetMomentumDirection().phi();
 
 	G4cout << "Particle Name is:" << Particle_Name << G4endl;
-	G4cout << "CreatorProcess is:" << CreatorProcessName << G4endl;
+	G4cout << "CreatorProcess is:" << creator_process_name << G4endl;
 	G4cout << "Kinetic Energy is:" << ekin/MeV << " MeV" << G4endl;
 	G4cout << "Theta is:" << theta/degree << " degree" << G4endl;
 	G4cout << "Phi is:" << phi/degree << " degree" << G4endl;

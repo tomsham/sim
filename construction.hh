@@ -8,6 +8,7 @@
 #include "G4Box.hh"
 #include "G4Tubs.hh"
 #include "G4Sphere.hh"
+#include "G4Cons.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4LogicalVolume.hh"
 #include "G4VPhysicalVolume.hh"
@@ -42,8 +43,9 @@ public:
 	// End Positron source
 	
 	// Liquid scintillator
-	void ConstructLquidScintillator();
+	void ConstructLiquidScintillator();
 	void ConstructCup_Detector();
+	void ConstructLAB_Acrylic();
 	// End Liquid scintillator
 
 	// Ideal Cylinder Detector
@@ -75,6 +77,7 @@ private:
 	// Radioactive Source (Positron Source)
 	G4Material *Ti_, *NaCl;
 	G4Element *Ti;
+	
 	// Design-1 CsI Detector
 	G4Material *CsI, *Mylar;
 	G4Material *Kapton, *Polystyrene;
@@ -107,6 +110,12 @@ private:
 	G4LogicalVolume *logicPlaneDetector_W, *logicPlaneDetector_C, *logicPlaneDetector_L;	// W = World, C = Container, L = Liquid
 	G4LogicalVolume *logicRingDetector, *logicTubeDetector;
 	G4VPhysicalVolume *physContainer_F, *physContainer_B, *physLiquid_F, *physLiquid_B, *physPlaneDetector, *physRingDetector, *physTubeDetector;
+
+	G4Material *C16H26, *C17H28, *C18H30, *C19H32, *LAB, *Acrylic;
+	G4bool isLAB_Acrylic;
+	G4VSolid *solidLAB, *solidTi;
+	G4LogicalVolume *logicLAB, *logicTi;
+	G4VPhysicalVolume *physLAB_F, *physLAB_B, *physTi_F, *physTi_B;
 	// End Liquid scintillator
 
 	// Ideal Detector

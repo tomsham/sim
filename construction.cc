@@ -10,9 +10,9 @@ MyDetectorConstruction::MyDetectorConstruction()
 
 	// Here to control the construction selector to select which part should be constructed
 	// Radioactive Source (Positron Source)
-	isRing = false;
-	isDisk = false;
-	isBareSource = false;
+	isRing = true;
+	isDisk = true;
+	isBareSource = true;
 	// Dt = Detector, only need to construct one of them
 	isBareSource_Dt = false;
 	isBS_Disk_Dt = false;
@@ -21,6 +21,8 @@ MyDetectorConstruction::MyDetectorConstruction()
 	// Positronium Source
 	isLiquid = false;
 	isCupDetector = false;
+	isLAB_Acrylic = true;
+
 	isDetector_Shell = false;
 	isDetector_Cylinder = false;
 
@@ -85,16 +87,17 @@ MyDetectorConstruction::~MyDetectorConstruction()
 void MyDetectorConstruction::DefineMaterials()
 {
 	G4NistManager* nist = G4NistManager::Instance();
+	G4double hc = 1239.841939 * eV;
 
 	Air = nist->FindOrBuildMaterial("G4_AIR");
 	Vacuum = nist->FindOrBuildMaterial("G4_Galactic");
 
 	// Aerogel
-	SiO2 = new G4Material("SiO2", 0.125 * g / cm3, 2);
+	SiO2 = new G4Material("SiO2", 0.125*g/cm3, 2);
 	SiO2->AddElement(nist->FindOrBuildElement("Si"), 1);
 	SiO2->AddElement(nist->FindOrBuildElement("O"), 2);
 
-	H2O = new G4Material("H2O", 1.000 * g / cm3, 2);
+	H2O = new G4Material("H2O", 1.000*g/cm3, 2);
 	H2O->AddElement(nist->FindOrBuildElement("H"), 2);
 	H2O->AddElement(nist->FindOrBuildElement("O"), 1);
 
@@ -105,7 +108,7 @@ void MyDetectorConstruction::DefineMaterials()
 	Aerogel->AddMaterial(H2O, 37.4*perCent);
 	Aerogel->AddElement(C, 0.1*perCent);
 
-	G4double energyAerogel[2] = { 1.239841939*eV/0.9, 1.239841939*eV/0.2 };
+	G4double energyAerogel[2] = { hc/900, hc/200 };		// 900nm, 200nm
 	G4double rindexAerogel[2] = { 1.1, 1.1 };
 	G4MaterialPropertiesTable* mptAerogel = new G4MaterialPropertiesTable();
 	mptAerogel->AddProperty("RINDEX", energyAerogel, rindexAerogel, 2);
@@ -125,7 +128,7 @@ void MyDetectorConstruction::DefineMaterials()
 
 	// CsI
 	CsI = nist->FindOrBuildMaterial("G4_CESIUM_IODIDE");
-	G4double energyCsI[1] = { 1.239841939*eV/0.31 };	//310nm
+	G4double energyCsI[1] = { hc/310 };					//310nm
 	G4double rindexCsI[1] = { 1.95 };
 	G4MaterialPropertiesTable* mptCsI = new G4MaterialPropertiesTable();
 	mptCsI->AddProperty("RINDEX", energyCsI, rindexCsI, 1);
@@ -149,14 +152,50 @@ void MyDetectorConstruction::DefineMaterials()
 	Mylar = nist->FindOrBuildMaterial("G4_MYLAR");
 	// End Mylar
 	
-	// From Eltis
+	// Ti_
 	Kapton = nist->FindOrBuildMaterial("G4_KAPTON");
 
 	Ti = nist->FindOrBuildElement("Ti");
 	Ti_ = new G4Material("Ti_", 4.507*g/cm3, 1);	//The density of G4_Ti is 4.54*g/cm3
 	Ti_->AddElement(Ti,1.);
-	// End Eltis
+	// End Ti_
 
+	// LAB
+	C16H26 = new G4Material("C16H26", 0.856*g/cm3, 2);
+	C16H26 -> AddElement(nist->FindOrBuildElement("C"), 16);
+	C16H26 -> AddElement(nist->FindOrBuildElement("H"), 26);
+
+	C17H28 = new G4Material("C17H28", 0.855*g/cm3, 2);
+	C17H28 -> AddElement(nist->FindOrBuildElement("C"), 17);
+	C17H28 -> AddElement(nist->FindOrBuildElement("H"), 28);
+
+	C18H30 = new G4Material("C18H28", 0.856*g/cm3, 2);
+	C18H30 -> AddElement(nist->FindOrBuildElement("C"), 18);
+	C18H30 -> AddElement(nist->FindOrBuildElement("H"), 30);
+
+	C19H32 = new G4Material("C19H32", 0.881*g/cm3, 2);
+	C19H32 -> AddElement(nist->FindOrBuildElement("C"), 19);
+	C19H32 -> AddElement(nist->FindOrBuildElement("H"), 32);
+
+	LAB = new G4Material("LAB",  0.86*g/cm3, 4);
+	LAB -> AddMaterial(C16H26, 6.98*perCent);
+	LAB -> AddMaterial(C17H28, 30.6*perCent);
+	LAB -> AddMaterial(C18H30, 45.0*perCent);
+	LAB -> AddMaterial(C19H32, 17.4*perCent);
+
+	G4double energyLAB[6] = { hc/627.3, hc/579.8, hc/547.7, hc/493.9, hc/438.5, hc/405.1};		// hc/wavelength(in nm)
+	G4double rindexLAB[6] = { 1.4786, 1.48118, 1.48329, 1.48786, 1.49505, 1.50061 };
+	G4MaterialPropertiesTable* mptLAB = new G4MaterialPropertiesTable();
+	mptLAB->AddProperty("RINDEX", energyLAB, rindexLAB, 2);
+	LAB->SetMaterialPropertiesTable(mptLAB);
+	// End LAB
+
+	// Acrylic, from examples>advanced>air_shower>UltraDetectorConstruction.cc
+	Acrylic = new G4Material("Acrylic", 1.19*g/cm3, 3);
+	Acrylic->AddElement(C, 5);
+	Acrylic->AddElement(nist->FindOrBuildElement("H"), 8);
+	Acrylic->AddElement(nist->FindOrBuildElement("O"), 2);
+	// End Acrylic
 }
 
 // Construct All physical volumes
@@ -186,9 +225,11 @@ G4VPhysicalVolume* MyDetectorConstruction::Construct()
 		ConstructBSD_Ring_Detector();
 
 	if (isLiquid)
-		ConstructLquidScintillator();
+		ConstructLiquidScintillator();
 	if (isCupDetector)
 		ConstructCup_Detector();
+	if (isLAB_Acrylic)
+		ConstructLAB_Acrylic();
 
 	if (isDetector_Shell)
 		ConstructShell_Detector();
@@ -290,7 +331,7 @@ void MyDetectorConstruction::ConstructBSD_Ring_Detector() {
 // End Positron Source
 
 // Liquid scintillator and CupDetector
-void MyDetectorConstruction::ConstructLquidScintillator(){
+void MyDetectorConstruction::ConstructLiquidScintillator(){
 	solidContainer = new G4Tubs("LiquidContainer", 0.*nm, container_radius, container_height_half, 0.*deg, 360.*deg);
 	solidLiquid = new G4Tubs("Liquid", 0.*nm, container_radius-container_thickness, container_height_half-container_thickness, 0.*deg, 360.*deg);
 
@@ -364,6 +405,36 @@ void MyDetectorConstruction::ConstructCup_Detector() {
 		}
 		// End PlaneDetector
 	}
+}
+void MyDetectorConstruction::ConstructLAB_Acrylic() {
+	//G4double angle_end = 360*degree;
+	G4double angle_end = 360*degree;
+	G4double thickness = 1*mm;
+
+	G4Tubs* solidA = new G4Tubs("solidA", 0.*mm, 29.55*mm, 10/2*mm, 0.*deg, angle_end);
+	G4Tubs* solidB = new G4Tubs("solidB", 0.*mm, 29.55*mm-thickness, (10/2-thickness)/2*mm, 0.*deg, angle_end);
+	G4Cons* solidC = new G4Cons("solidC", 0.*mm, 4.765*mm, 0.*mm, 9.55*mm, 3.746/2*mm, 0.*deg, angle_end);
+	G4Tubs* solidD = new G4Tubs("solidD", 0.*mm, 4.765*mm, 0.5/2*mm, 0.*deg, angle_end);
+	G4Tubs* solidE = new G4Tubs("solidE", 0.*mm, 9.55*mm, 0.256/2*mm, 0.*deg, angle_end);		// slightly increase the half_height to ensure full subtraction of solid
+
+	G4Translate3D transC(G4ThreeVector(0.*mm, 0.*mm, -(4/2+3.746/2)*mm));
+	G4UnionSolid* solidBC = new G4UnionSolid("solidBC", solidB, solidC, transC);
+
+	G4Translate3D transD(G4ThreeVector(0.*mm, 0.*mm, -(4/2+0.5/2+3.746)*mm));
+	G4UnionSolid* solidBCD = new G4UnionSolid("solidBCD", solidBC, solidD, transD);
+
+	G4Translate3D transE(G4ThreeVector(0.*mm, 0.*mm, (0.256/2-0.002-5)*mm));					// 0.002 is the complementary translation for solidE
+	G4SubtractionSolid* solidA_E = new G4SubtractionSolid("solidA_E", solidA, solidE, transE);
+
+	G4LogicalVolume* logicContainer = new G4LogicalVolume(solidA_E, Acrylic, "logicContainer");
+	G4LogicalVolume* logicLAB = new G4LogicalVolume(solidBCD, LAB, "logicBCD");
+
+	G4Translate3D transZ(G4ThreeVector(0.*m, 0.*m, 5.*mm));
+	G4Rotate3D rotY_90_2(90.*2*deg, G4ThreeVector(0.,1.,0.));
+
+	G4VPhysicalVolume* physContainer_F = new G4PVPlacement(transZ, logicContainer, "physContainer_F", logicWorld, false, 0, true);
+	G4VPhysicalVolume* physContainer_B = new G4PVPlacement(rotY_90_2*transZ, logicContainer, "physContainer_B", logicWorld, false, 0, true);
+	G4VPhysicalVolume* physLAB = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, 2.*mm), logicLAB, "physLAB", logicContainer, false, 0, true);
 }
 // End Liquid scintillator and CupDetector
 

@@ -13,6 +13,9 @@
 #include "G4IonTable.hh"
 #include "Randomize.hh"
 
+#include "G4OrthoPositronium.hh"
+#include "G4ParaPositronium.hh"
+
 
 class MyPrimaryGenerator : public G4VUserPrimaryGeneratorAction
 {
@@ -23,7 +26,7 @@ public:
 	void ParticleDefinition();
 
 private:
-	G4ParticleDefinition *fGamma, *fPositron, *fGeantino, *fIon;
+	G4ParticleDefinition *fGamma, *fPositron, *fGeantino, *fIon, *fo_Ps, *fp_Ps;
 	G4ParticleDefinition *pdParticleGun, *pdParticleSource;			// pd = ParticleDefinition
 	G4ParticleGun *fParticleGun;
 	G4GeneralParticleSource *fParticleSource;
@@ -31,7 +34,7 @@ private:
 	G4ThreeVector posParticleGun, momDirectionParticleGun;
 	G4int Z, A;														// Z = Atomic number (Proton Number), A =  Mass number
 	G4double ex_energy;												// ex_energy = Excitation energy
-	G4double momParticleGun, chargeParticleGun, chargeParticleSource;
+	G4double kinParticleGun, chargeParticleGun, chargeParticleSource;
 };
 
 #endif

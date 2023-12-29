@@ -1,0 +1,11 @@
+/run/numberOfThreads 2
+/run/initialize
+
+#Enable command echo
+/control/verbose 0
+
+#Set the active region
+/control/execute region_setup.mac
+
+#Commands below are independent of gps
+/run/beamOn 4

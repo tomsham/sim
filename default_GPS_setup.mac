@@ -1,3 +1,4 @@
 #Set the energy distribution of Source, Mono (single value)
 /gps/ene/type Mono
 /gps/ene/mono 0. keV
+/gps/ang/type iso

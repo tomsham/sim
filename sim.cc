@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "globals.hh"
 #include "G4RunManager.hh"
 #include "G4MTRunManager.hh"
 
@@ -18,14 +19,14 @@ int main(int argc, char** argv)	// argc = argument count, argv = argument vector
 	G4Random::setTheSeed(1);	// Set the random seed for whole simulation
 
 	#ifdef G4MULTITHREADED		//Check Installed Geant4 version
-		G4MTRunManager* runManager = new G4MTRunManager();
+		G4MTRunManager* runManager = new G4MTRunManager();				// Assign Heap (Dynamic Memory) for RunManager
 	#else
 		G4RunManager* runManager = new G4RunManager();
 	#endif
 
-	runManager->SetUserInitialization(new MyDetectorConstruction());
-	runManager->SetUserInitialization(new MyPhysicsList());
-	runManager->SetUserInitialization(new MyActionInitialization());
+	runManager->SetUserInitialization(new MyDetectorConstruction());	// Set Construction of the RunManager using MyDetectorConstruction
+	runManager->SetUserInitialization(new MyPhysicsList());				// Set PhysicsList of the RunManager using MyPhysicsList
+	runManager->SetUserInitialization(new MyActionInitialization());	// Set ActionInitialization of the RunManager using MyActionInitialization
 	//runManager->Initialize();
 
 	if (argc == 1)
