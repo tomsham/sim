@@ -13,6 +13,7 @@
 #include "physics.hh"
 #include "action.hh"
 #include "G4GeometryManager.hh"
+#include "FTFP_BERT.hh"
 
 int main(int argc, char** argv)	// argc = argument count, argv = argument vector, https://www.ibm.com/docs/en/i/7.1?topic=functions-main-function
 {
@@ -24,8 +25,19 @@ int main(int argc, char** argv)	// argc = argument count, argv = argument vector
 		G4RunManager* runManager = new G4RunManager();
 	#endif
 
+	G4bool physics_selector = 0;	// 0 = MyPhysicsList, 1 = Default PhysicsList
+	if (physics_selector == 0) {
+		G4VModularPhysicsList* physicsList = new MyPhysicsList();
+		runManager->SetUserInitialization(physicsList);			// Set PhysicsList of the RunManager using MyPhysicsList
+	}
+	else {
+		G4VModularPhysicsList* physicsList = new FTFP_BERT;
+		physicsList->RegisterPhysics(new G4RadioactiveDecayPhysics());
+		physicsList->RegisterPhysics(new G4OpticalPhysics());
+		runManager->SetUserInitialization(physicsList);					// Set PhysicsList of the RunManager using FTFP_BERT which is the default PhysicsList for Geant4 ver.11.0.p2
+	}
+
 	runManager->SetUserInitialization(new MyDetectorConstruction());	// Set Construction of the RunManager using MyDetectorConstruction
-	runManager->SetUserInitialization(new MyPhysicsList());				// Set PhysicsList of the RunManager using MyPhysicsList
 	runManager->SetUserInitialization(new MyActionInitialization());	// Set ActionInitialization of the RunManager using MyActionInitialization
 	//runManager->Initialize();
 

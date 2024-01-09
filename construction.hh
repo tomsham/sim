@@ -46,6 +46,7 @@ public:
 	void ConstructLiquidScintillator();
 	void ConstructCup_Detector();
 	void ConstructLAB_Acrylic();
+	void ConstructAcrylicBlock();
 	// End Liquid scintillator
 
 	// Ideal Cylinder Detector
@@ -56,9 +57,10 @@ public:
 	void ConstructShell_Detector();
 	// End Ideal Detector
 
-	// Design-1 Detector
+	// CsI Detector
 	void ConstructCsI();
-	// End Design-1 Detector
+	void ConstructCsI_2();
+	// End CsI Detector
 
 	// From Eltis
 	void ConstructSourceScintillator();
@@ -91,13 +93,13 @@ private:
 
 	// Radioactive Source (Positron Source)
 	G4Material *matRing, *matDisk, *matSource;
-	G4bool isRing, isDisk, isBareSource;	// D = Detector
+	G4bool isRing, isDisk, isBareSource, isSource;
 	G4double ring_radius, ring_height_half, disk_radius, disk_height_half, bare_source_radius, bare_source_height_half;
 	G4Tubs *solidRing, *solidDisk, *solidBareSource;
 	G4LogicalVolume *logicRing, *logicDisk, *logicBareSource;
 	G4VPhysicalVolume *physRing, *physDisk, *physBareSource;
-	G4bool isBareSource_Dt, isBS_Disk_Dt, isBSD_Ring_Dt;
-	G4LogicalVolume *logicBareSource_Dt, *logicBS_Disk_Dt, *logicBSD_Ring_Dt;					//BS = Bare Source, D = Disk, Dt = Detector
+	G4bool isBareSource_Dt, isBS_Disk_Dt, isBSD_Ring_Dt;						//BS = Bare Source, D = Disk, Dt = Detector
+	G4LogicalVolume *logicBareSource_Dt, *logicBS_Disk_Dt, *logicBSD_Ring_Dt;
 	G4VPhysicalVolume *physBareSource_Dt, *physBS_Disk_Dt, *physBSD_Ring_Dt;
 	// End Radioactive Source
 
@@ -112,10 +114,7 @@ private:
 	G4VPhysicalVolume *physContainer_F, *physContainer_B, *physLiquid_F, *physLiquid_B, *physPlaneDetector, *physRingDetector, *physTubeDetector;
 
 	G4Material *C16H26, *C17H28, *C18H30, *C19H32, *LAB, *Acrylic;
-	G4bool isLAB_Acrylic;
-	G4VSolid *solidLAB, *solidTi;
-	G4LogicalVolume *logicLAB, *logicTi;
-	G4VPhysicalVolume *physLAB_F, *physLAB_B, *physTi_F, *physTi_B;
+	G4bool isLAB_Acrylic, isAcrylicBlock;
 	// End Liquid scintillator
 
 	// Ideal Detector
@@ -125,8 +124,8 @@ private:
 	G4VPhysicalVolume *physDetector_Shell, *physDetector_Cylinder;
 	// End Ideal Detector
 
-	// Design-1 CsI Detector
-	G4bool isCsI;
+	// CsI Detector
+	G4bool isCsI, isCsI_2;
 	G4double wrapping_thickness;
 	G4Box *solidDetector_H, *solidDetector_V;
 	G4Box *solidCsI;
@@ -135,7 +134,7 @@ private:
 	// F = Front, B = Back, L = Left, R = Right, U = Up, D = Down
 	G4LogicalVolume *logicDetector_F, *logicDetector_B, *logicDetector_L, *logicDetector_R, *logicDetector_U, *logicDetector_D;
 	G4VPhysicalVolume *physDetector_F, *physDetector_B, *physDetector_L, *physDetector_R, *physDetector_U, *physDetector_D;
-	// End Design-1
+	// End CsI Detector
 	
 	// From Eltis, edited by Tom
 	G4bool isSourceScintillator;
@@ -143,7 +142,6 @@ private:
 	G4LogicalVolume *logic_SourceScintillator;
 	G4VPhysicalVolume *phys_SourceScintillator;
 	// End Eltis
-
 };
 
 #endif

@@ -10,9 +10,10 @@ MyDetectorConstruction::MyDetectorConstruction()
 
 	// Here to control the construction selector to select which part should be constructed
 	// Radioactive Source (Positron Source)
-	isRing = true;
-	isDisk = true;
-	isBareSource = true;
+	isRing = false;
+	isDisk = false;
+	isBareSource = false;
+	isSource = true;
 	// Dt = Detector, only need to construct one of them
 	isBareSource_Dt = false;
 	isBS_Disk_Dt = false;
@@ -22,12 +23,14 @@ MyDetectorConstruction::MyDetectorConstruction()
 	isLiquid = false;
 	isCupDetector = false;
 	isLAB_Acrylic = true;
+	isAcrylicBlock = false;
 
 	isDetector_Shell = false;
 	isDetector_Cylinder = false;
 
 	// CsI crystal detector
 	isCsI = false;
+	isCsI_2 = false;
 
 	// Aerogel, from Eltis
 	isSourceScintillator = false;
@@ -217,6 +220,11 @@ G4VPhysicalVolume* MyDetectorConstruction::Construct()
 		ConstructDisk();
 	if (isBareSource)
 		ConstructBareSource(isDisk);
+	if (isSource) {
+		ConstructRing();
+		ConstructDisk();
+		ConstructBareSource(isDisk);
+	}
 	if (isBareSource_Dt)
 		ConstructBareSource_Detector();
 	if (isBS_Disk_Dt)
@@ -230,11 +238,18 @@ G4VPhysicalVolume* MyDetectorConstruction::Construct()
 		ConstructCup_Detector();
 	if (isLAB_Acrylic)
 		ConstructLAB_Acrylic();
+	if (isAcrylicBlock)
+		ConstructAcrylicBlock();
 
 	if (isDetector_Shell)
 		ConstructShell_Detector();
 	if (isDetector_Cylinder)
 		ConstructCylinder_Detector();
+
+	if (isCsI)
+		ConstructCsI();
+	if (isCsI_2)
+		ConstructCsI_2();
 
 	// From Eltis, edited by Tom
 	if (isSourceScintillator)
@@ -436,6 +451,14 @@ void MyDetectorConstruction::ConstructLAB_Acrylic() {
 	G4VPhysicalVolume* physContainer_B = new G4PVPlacement(rotY_90_2*transZ, logicContainer, "physContainer_B", logicWorld, false, 0, true);
 	G4VPhysicalVolume* physLAB = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, 2.*mm), logicLAB, "physLAB", logicContainer, false, 0, true);
 }
+void MyDetectorConstruction::ConstructAcrylicBlock() {
+	G4Box* solidA = new G4Box("solidA", 0.5*m, 0.5*m, 0.25*m);
+
+	G4LogicalVolume* logicBlock = new G4LogicalVolume(solidA, Acrylic, "logicBlock");
+	G4Translate3D transZ(G4ThreeVector(0.*m, 0.*m, 0.25*m));
+
+	G4VPhysicalVolume* physContainer_F = new G4PVPlacement(transZ, logicBlock, "physContainer_F", logicWorld, false, 0, true);
+}
 // End Liquid scintillator and CupDetector
 
 // Ideal Cylinder Detector
@@ -463,7 +486,7 @@ void MyDetectorConstruction::ConstructShell_Detector() {
 }
 // End Ideal Detector
 
-// Design-1 CsI Detector
+// CsI Detector
 void MyDetectorConstruction::ConstructCsI()
 {
 	G4double CsI_sidelength_half = 0.05/2*m;
@@ -535,7 +558,78 @@ void MyDetectorConstruction::ConstructCsI()
 		}
 	}
 }
-// End Design-1
+void MyDetectorConstruction::ConstructCsI_2()
+{
+	G4double CsI_sidelength_half = 0.05/2*m;
+	G4double CsI_height_half = 0.5/2*m;
+	solidCsI = new G4Box("solidCsI", CsI_sidelength_half, CsI_sidelength_half,  CsI_height_half);
+	logicCsI = new G4LogicalVolume(solidCsI, CsI, "logicCsI");
+	//fScoringVolume = logicCsI;
+
+	G4double d = 2*(CsI_sidelength_half+wrapping_thickness);	//Distance between 2 CsI (m)
+	G4double nCS = 4;							//Number of Crystals on the Side of Cube
+	G4double nExtra = 1;
+	G4double nCS_H = nCS+nExtra;				//Horizontal, Front, Back, Left, Right
+	G4double nCS_V = nCS+nExtra*2;				//Vertical, Up, Down
+	G4double Cube_side_length = nCS*CsI_sidelength_half+(nCS-0.5)*wrapping_thickness+CsI_height_half;
+	G4double Cube_side_height = nCS*(CsI_sidelength_half+wrapping_thickness)+CsI_height_half;
+
+	//Create Mylar Wrapping as the mother logicVolume, Add CsI(pure) as the daughter logicVolume
+	//Detector_H 
+	solidDetector_H = new G4Box("solidDetector_H", (CsI_sidelength_half+wrapping_thickness)*nCS_H,(CsI_sidelength_half+wrapping_thickness)*nCS, CsI_height_half);
+	logicDetector_F = new G4LogicalVolume(solidDetector_H, Mylar, "logicDetector_F");
+	logicDetector_L = new G4LogicalVolume(solidDetector_H, Mylar, "logicDetector_L");
+	logicDetector_B = new G4LogicalVolume(solidDetector_H, Mylar, "logicDetector_B");
+	logicDetector_R = new G4LogicalVolume(solidDetector_H, Mylar, "logicDetector_R");
+	//Transformation
+	G4Translate3D transZ_H(G4ThreeVector(-(nCS*CsI_sidelength_half+(nCS-0.5)*wrapping_thickness)+(CsI_sidelength_half+wrapping_thickness)*nCS_H, 0*m, Cube_side_length));
+	G4Rotate3D rotY_90(90.*deg, G4ThreeVector(0.,1.,0.));
+	G4Rotate3D rotY_90_2(90.*2*deg, G4ThreeVector(0.,1.,0.));
+	G4Rotate3D rotY_90_3(90.*3*deg, G4ThreeVector(0.,1.,0.));
+	//physDetector_H
+	physDetector_F = new G4PVPlacement(transZ_H, logicDetector_F, "Detector_F", logicWorld, false, 0, true);
+	physDetector_L = new G4PVPlacement((rotY_90)*(transZ_H), logicDetector_L, "Detector_L", logicWorld, false, 0, true);
+	physDetector_B = new G4PVPlacement((rotY_90_2)*(transZ_H), logicDetector_B, "Detector_B", logicWorld, false, 0, true);
+	physDetector_R = new G4PVPlacement((rotY_90_3)*(transZ_H), logicDetector_R, "Detector_R", logicWorld, false, 0, true);
+
+	G4double StartPoint_X = -nCS_H*(CsI_sidelength_half+wrapping_thickness)+CsI_sidelength_half+wrapping_thickness;		//-Half_length+Half_d
+	G4double StartPoint_Y = -nCS*(CsI_sidelength_half+wrapping_thickness)+CsI_sidelength_half+wrapping_thickness;			//-Half_length+Half_d
+	for (G4int i = 0; i < nCS_H; i++)	//Column
+	{
+		for (G4int j = 0; j < nCS; j++)	//Row
+		{
+			G4Translate3D transZ_CsI(G4ThreeVector(StartPoint_X+i*d, StartPoint_Y+j*d, 0.*m));
+			G4VPhysicalVolume* physDetector_f = new G4PVPlacement(transZ_CsI, logicCsI, "Detector_f", logicDetector_F, false, i*10+j, true);
+			G4VPhysicalVolume* physDetector_l = new G4PVPlacement(transZ_CsI, logicCsI, "Detector_l", logicDetector_L, false, i*10+j, true);
+			G4VPhysicalVolume* physDetector_b = new G4PVPlacement(transZ_CsI, logicCsI, "Detector_b", logicDetector_B, false, i*10+j, true);
+			G4VPhysicalVolume* physDetector_r = new G4PVPlacement(transZ_CsI, logicCsI, "Detector_r", logicDetector_R, false, i*10+j, true);
+		}
+	}
+
+	//Detector_V
+	solidDetector_V = new G4Box("solidDetector_V", (CsI_sidelength_half+wrapping_thickness)*nCS_V,(CsI_sidelength_half+wrapping_thickness)*nCS_V, CsI_height_half);
+	logicDetector_U = new G4LogicalVolume(solidDetector_V, Mylar, "logicDetector_U");
+	logicDetector_D = new G4LogicalVolume(solidDetector_V, Mylar, "logicDetector_D");
+	//Transformation
+	G4Translate3D transZ_V(G4ThreeVector(0*m, 0*m, Cube_side_height));
+	G4Rotate3D rotX_90(90.*deg, G4ThreeVector(1.,0.,0.));
+	G4Rotate3D rotX_270(-90.*deg, G4ThreeVector(1.,0.,0.));
+	//physDetector_H
+	G4VPhysicalVolume* physDetector_U = new G4PVPlacement((rotX_270)*(transZ_V), logicDetector_U, "Detector_U", logicWorld, false, 0, true);
+	G4VPhysicalVolume* physDetector_D = new G4PVPlacement((rotX_90)*(transZ_V), logicDetector_D, "Detector_D", logicWorld, false, 0, true);
+
+	G4double StartPoint_V = -nCS_V*(CsI_sidelength_half+wrapping_thickness)+CsI_sidelength_half+wrapping_thickness;		//-Half_length+Half_d
+	for (G4int i = 0; i < nCS_V; i++)
+	{
+		for (G4int j = 0; j < nCS_V; j++)
+		{
+			G4Translate3D transZ_CsI(G4ThreeVector(StartPoint_V+i*d, StartPoint_V+j*d, 0*m));
+			G4VPhysicalVolume* physDetector_u = new G4PVPlacement(transZ_CsI, logicCsI, "Detector_u", logicDetector_U, false, i*10+j, true);
+			G4VPhysicalVolume* physDetector_d = new G4PVPlacement(transZ_CsI, logicCsI, "Detector_d", logicDetector_D, false, i*10+j, true);
+		}
+	}
+}
+// End CsI Detector
 
 // Construct Aerogel, from Eltis
 void MyDetectorConstruction::ConstructSourceScintillator() {

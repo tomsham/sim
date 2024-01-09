@@ -46,10 +46,10 @@ public:
 		const G4Track& track,
 		const G4Step& stepData) override;
 
-	virtual G4double PostStepGetPhysicalInteractionLength(
+	/*virtual G4double PostStepGetPhysicalInteractionLength(
 		const G4Track& track,
 		G4double  previousStepSize,
-		G4ForceCondition* condition) override;
+		G4ForceCondition* condition) override;*/
 
 	// print documentation in html format
 	virtual void ProcessDescription(std::ostream&) const override;

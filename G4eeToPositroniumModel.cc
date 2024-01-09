@@ -197,8 +197,8 @@ void G4eeToPositroniumModel::SampleSecondaries(
     }
 
     // kill primary positron
-    G4cout << "Positron is killed" << G4endl;
-    G4cout << "posiKinEnergy: " << posiKinEnergy/keV << "keV" << G4endl;
+    //G4cout << "Positron is killed" << G4endl;
+    //G4cout << "positron KinEnergy: " << posiKinEnergy/keV << "keV" << G4endl;
     fParticleChange->ProposeTrackStatus(fStopAndKill);
     //fParticleChange->SetProposedKineticEnergy(0.0);
 }

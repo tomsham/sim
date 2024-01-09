@@ -11,20 +11,21 @@
 #include "G4ProcessManager.hh"
 
 #include "G4EmStandardPhysics.hh"
-#include "G4EmStandardPhysics_option1.hh"
-#include "G4EmStandardPhysics_option2.hh"
-#include "G4EmStandardPhysics_option3.hh"
-#include "G4EmStandardPhysics_option4.hh"
-#include "G4EmStandardPhysicsGS.hh"
-#include "G4EmStandardPhysicsSS.hh"
-#include "G4EmStandardPhysicsWVI.hh"
-#include "G4EmLivermorePhysics.hh"
-#include "G4EmPenelopePhysics.hh"
-#include "G4EmLowEPPhysics.hh"
+#include "G4EmExtraPhysics.hh"
 #include "G4DecayPhysics.hh"
-#include "G4VPhysicsConstructor.hh"
+#include "G4HadronElasticPhysics.hh"
+#include "G4HadronPhysicsFTFP_BERT.hh"
+#include "G4StoppingPhysics.hh"
+#include "G4IonPhysics.hh"
+#include "G4NeutronTrackingCut.hh"
 
-//#include "G4LeptonConstructor.hh"
+#include "G4LeptonConstructor.hh"
+#include "G4MesonConstructor.hh"
+#include "G4BaryonConstructor.hh"
+#include "G4BosonConstructor.hh"
+#include "G4ShortLivedConstructor.hh"
+#include "G4IonConstructor.hh"
+
 #include "G4Gamma.hh"
 #include "G4Positron.hh"
 #include "G4ParaPositronium.hh"
@@ -32,6 +33,18 @@
 
 #include "G4eeToPositroniumModel.hh"
 #include "G4eeToPositronium.hh"
+
+// G4OpticalPhysics::ConstructProcess() is protected, so using MyOpticalPhysics to inherit from G4OpticalPhysics to call the function ConstructProcess().
+class MyOpticalPhysics : public G4OpticalPhysics
+{
+public:
+	MyOpticalPhysics() {};
+	~MyOpticalPhysics() {};
+	void GetProcess()
+	{
+		ConstructProcess();
+	}
+};
 
 class MyPhysicsList : public G4VModularPhysicsList
 {
@@ -41,7 +54,6 @@ public:
 
 	virtual void ConstructParticle();
 	virtual void ConstructProcess();
-	//virtual void AddPhysicsList(const G4String& name);
 	virtual void SetCuts();
 
 private:

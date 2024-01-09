@@ -41,19 +41,19 @@ G4double G4eeToPositronium::AtRestGetPhysicalInteractionLength(const G4Track&, G
 	return 0.0;
 }
 
-G4double G4eeToPositronium::PostStepGetPhysicalInteractionLength(
-	const G4Track& track,
-	G4double  previousStepSize,
-	G4ForceCondition* condition)
-{
-	*condition = NotForced;
-	G4double length;
-	//length = DBL_MAX;
-	//length = 1/(CrossSection*NumberDensity)
-	length = 0.0001;		// made-up interaction length
-
-	return length;
-}
+//G4double G4eeToPositronium::PostStepGetPhysicalInteractionLength(
+//	const G4Track& track,
+//	G4double  previousStepSize,
+//	G4ForceCondition* condition)
+//{
+//	*condition = NotForced;
+//	G4double length;
+//	//length = DBL_MAX;
+//	//length = 1/(CrossSection*NumberDensity)
+//	length = 0.0001;		// made-up interaction length
+//
+//	return length;
+//}
 
 void G4eeToPositronium::InitialiseProcess(const G4ParticleDefinition*)
 {

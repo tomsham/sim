@@ -117,7 +117,10 @@ void MySteppingAction::ReadOut(const G4Step* step) {
     G4double postKE = poststep->GetKineticEnergy();
     G4String logic_Volume_Name = track->GetTouchable()->GetVolume()->GetLogicalVolume()->GetName();
     G4String creator_process_name = "NULL";
-    G4double time = track->GetGlobalTime();
+    G4double preGlobalTime = prestep->GetGlobalTime();
+    G4double postGlobalTime = poststep->GetGlobalTime();
+    G4double preLocalTime = prestep->GetLocalTime();
+    G4double postLocalTime = poststep->GetLocalTime();
 
     if (track->IsGoodForTracking())
         creator_process_name = track->GetCreatorProcess()->GetProcessName();				        //Get the process name of the vertex of track 
@@ -132,7 +135,7 @@ void MySteppingAction::ReadOut(const G4Step* step) {
         G4cout << "particle_name : " << particle_name << G4endl;
         G4cout << "stepID : " << "0" << G4endl;
         G4cout << "trackId : " << trackId << G4endl;
-        //G4cout << "evt : " << evt << G4endl;
+        G4cout << "evt : " << evt << G4endl;
         G4cout << "trackPosition : " << prePosition/mm << "mm" << G4endl;
         G4cout << "trackMom : " << prestep->GetMomentum().mag()/MeV << "MeV/c" << G4endl;
         if (preKE/MeV > 1)
@@ -142,7 +145,8 @@ void MySteppingAction::ReadOut(const G4Step* step) {
         else
             G4cout << "trackKE : " << preKE/eV << "eV" << G4endl;
         G4cout << "creator_process_name : " << creator_process_name << G4endl;
-        G4cout << "time : " << time/ns << "ns" << G4endl;
+        G4cout << "DeltaTime : " << preLocalTime/ns << "ns" << G4endl;
+        G4cout << "GlobalTime : " << preGlobalTime/ns << "ns" << G4endl;
         G4cout << "----------" << G4endl;
     }
     G4cout << "particle_name : " << particle_name << G4endl;
@@ -158,6 +162,7 @@ void MySteppingAction::ReadOut(const G4Step* step) {
     else
         G4cout << "trackKE : " << postKE/eV << "eV" << G4endl;
     G4cout << "creator_process_name : " << creator_process_name << G4endl;
-    G4cout << "time : " << time/ns << "ns" << G4endl;
+    G4cout << "DeltaTime : " << (postGlobalTime-preGlobalTime)/ns << "ns" << G4endl;
+    G4cout << "GlobalTime : " << postGlobalTime/ns << "ns" << G4endl;
     G4cout << "----------" << G4endl;
 }
