@@ -5,7 +5,8 @@ This page is about the simulation project for study positronium.
 The main branch of this github repository is the source code.
 
 Some background information:<br>
-In Geant4, a simulation operation is called a "Run". Each "Run" contains 1 or more "Event". Each "Event" contains 1 or more "Track". Each "Track" contains 1 or more "Step".<br>
+In Geant4, a simulation operation is called a "run". Each "run" contains 1 or more "event". Each "event" contains "tracks" and "steps". A particle trajectory is formed by "steps". Each "step" contains changes of physical quantities, such as change of position respect to previous "step". Each "track" is unique for each particle and is a snapshot of current "step", contains information like global position. <br>
+
 For this project, 1 "Run" create 1 Sodium-22 and it will decay.
 
 In graphical user interface(GUI), you can use commands under @MyDetector branch, descriptions are included.<br>
@@ -47,18 +48,30 @@ This is for rebuilding selected physical volumes when using GUI.
 13. region_setup.mac<br>
 This is for setting the active region when using GUI.
 
-14. vis.mac<br>
+14. G4eeToPositroniumModel.hh & G4eeToPositroniumModel.cc<br>
+These files are used to define the model of forming positronium from positron, including branching ratio.
+
+15. G4eeToPositronium.hh & G4eeToPositronium.cc<br>
+These files are used to define the details of process that takes positron to form positronium, including calculation of interaction length.
+
+16. G4ParaPositronium.hh & G4ParaPositronium.cc<br>
+These files are used to define the para-positronium, including lifetime etc.
+
+17. G4OrthoPositronium.hh & G4OrthoPositronium.cc<br>
+These files are used to define the ortho-positronium, including lifetime etc.
+
+18. vis.mac<br>
 This is for visualization and is called in "sim.cc"
 
-15. run_CsI_t16_100k.mac<br>
+19. run_CsI_t16_100k.mac<br>
 This is for running the simulation in batch mode without GUI. It includes "region_setup.mac" and will run the simulation 100k times (create 100k "Run") using 16 threads when it is called.
 
-16. default_GPS_setup.mac<br>
+20. default_GPS_setup.mac<br>
 This is for setting the kinetic energy distribution of the G4GeneralParticleSource, which are Mono and 0*keV.
 
-17. CMakeLists.txt & CMakeSettings.json<br>
+21. CMakeLists.txt & CMakeSettings.json<br>
 The "CMakeLists.txt" contains configuration for CMake compiling.<br>
 The "CMakeSettings.json" contains information that Visual Studio uses for IntelliSense and to construct the command-line arguments that it passes to CMake for a specified configuration and compiler environment.
 
-18. LICENSE & README.md<br>
+22. LICENSE & README.md<br>
 License and readme files.
