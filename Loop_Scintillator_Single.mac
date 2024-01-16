@@ -1,0 +1,12 @@
+/@MyDetector/ScintillatorSize {size} mm
+/run/reinitializeGeometry 
+
+
+/gps/ene/type Mono
+/gps/ene/mono  0. keV
+
+/analysis/setFileName MyRunFile_{size}
+
+/run/printProgress 100000
+
+/run/beamOn 100000

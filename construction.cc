@@ -32,8 +32,11 @@ MyDetectorConstruction::MyDetectorConstruction()
 	isCsI = false;
 	isCsI_2 = false;
 
-	// Aerogel, from Eltis
-	isSourceScintillator = false;
+
+	// #Create the Scintillator or Aerogel
+	isSourceScintillator = true;//This can be modified
+	isSourceAerogel=false;//This can be modified
+
 	// End Aerogel
 
 	// Set the material for each logical volume
@@ -70,6 +73,20 @@ MyDetectorConstruction::MyDetectorConstruction()
 
 	wrapping_thickness = 13.*um;			//The wrapping thickness of CsI crystals, 13.e-6 m = 13. um
 	
+	
+	//Define Scintillator size, Scintillator are assumed be cylindrical
+	thick = 13.*um;		
+	Scintillator_height_half=20*mm; //This can be modified
+	Scintillator_radius = ring_radius+10*mm; //9.55mm+x, first run used variable thick, 13um so small
+	Scintillator_height = ring_height_half+Scintillator_height_half;
+	Scintillator_Material=Aerogel;
+
+	//Define Aerogel size, Aerogel are assumed be cubic, it dimension should larger than Scintillator
+	Aerogel_size=44.*mm;
+
+	Aerogel_Material=Aerogel;
+
+
 	// These are user defined commands for use in User-Interface(UI) mode and batch mode(using macro file)
 	fMessenger = new G4GenericMessenger(this, "/@MyDetector/", "Macros");
 	fMessenger->DeclareProperty("control/execute region_setup.mac", A, "Set the active region (cylinder locate at origin, radius = 9.53/2*mm, half height = 0.0001*mm)");
@@ -82,6 +99,13 @@ MyDetectorConstruction::MyDetectorConstruction()
 	fMessenger->DeclareProperty("Container/container_thickness",container_thickness,"Set the thickness of container. Default = 1*mm.");
 	fMessenger->DeclareProperty("Container/d_pos_z",d_pos_z,"Set the spacing between two nearest plane detectors. Default = 0.02*mm, Default Amount of Plane Detetors = (int)(2*mm/d_pos_z) = 100");
 	fMessenger->DeclareProperty("isShell_Detector", isDetector_Shell, "Construct Shell Detector (spherical shell locate at origin, inner radius = 3*cm, thickness = 1*nm)");
+
+
+	
+	fMessenger->DeclarePropertyWithUnit("AerogelSize", "mm", Aerogel_size,  "Set size of Aerogel");
+	fMessenger->DeclarePropertyWithUnit("ScintillatorSize", "mm", Scintillator_height,  "Set size of Scintillator");
+	fMessenger->DeclarePropertyWithUnit("ScintillatorSize_radius", "mm", Scintillator_radius,  "Set size of Scintillator");
+	
 	//fMessenger->DeclareProperty("isCsI", isCsI, "Select CsI detector");
 }
 MyDetectorConstruction::~MyDetectorConstruction()
@@ -106,13 +130,13 @@ void MyDetectorConstruction::DefineMaterials()
 
 	C = nist->FindOrBuildElement("C");
 
-	Aerogel = new G4Material("Aerogel", 0.200*g/cm3, 3);
-	Aerogel->AddMaterial(SiO2, 62.5*perCent);
-	Aerogel->AddMaterial(H2O, 37.4*perCent);
-	Aerogel->AddElement(C, 0.1*perCent);
+	Aerogel = new G4Material("Aerogel", 0.125*g/cm3, 2);
+	Aerogel->AddMaterial(SiO2, 96.*perCent);
+	Aerogel->AddMaterial(H2O, 4.*perCent);
+	//Aerogel->AddElement(C, 0.1*perCent);
 
 	G4double energyAerogel[2] = { hc/900, hc/200 };		// 900nm, 200nm
-	G4double rindexAerogel[2] = { 1.1, 1.1 };
+	G4double rindexAerogel[2] = { 1.036, 1.036 };
 	G4MaterialPropertiesTable* mptAerogel = new G4MaterialPropertiesTable();
 	mptAerogel->AddProperty("RINDEX", energyAerogel, rindexAerogel, 2);
 	Aerogel->SetMaterialPropertiesTable(mptAerogel);
@@ -633,34 +657,36 @@ void MyDetectorConstruction::ConstructCsI_2()
 
 // Construct Aerogel, from Eltis
 void MyDetectorConstruction::ConstructSourceScintillator() {
-	//G4double Scintillator_radius = ring_radius+1./2*mm;
-	G4double Scintillator_radius = 6./2*cm;
-	//G4double Scintillator_height = ring_height_half+4.0/2*mm;
-	G4double Scintillator_height = 3./2*cm;
+	solidRing = new G4Tubs("Ring", disk_radius, ring_radius, ring_height_half, 0.*deg, 360.*deg);
+	solidDisk = new G4Tubs("Disk", 0.*nm, disk_radius, disk_height_half, 0.*deg, 360.*deg);
+	
+	G4Tubs* BaseSourceScintillator = new G4Tubs("base", 0.*nm, Scintillator_radius, Scintillator_height, 0.*deg, 360.*deg);
 
-	G4Tubs *solidA = new G4Tubs("A", disk_radius, ring_radius, ring_height_half, 0.*deg, 360.*deg);				//Same as solidRing
-	G4Tubs *solidB = new G4Tubs("B", 0.*nm, disk_radius, disk_height_half, 0.*deg, 360.*deg);					//Same as solidDisk
-	G4UnionSolid *solidInside = new G4UnionSolid("solidInside", solidA, solidB);
+	G4SubtractionSolid* SourceScintillator_No_Disk = new G4SubtractionSolid("SourceScintillator_No_Disk", BaseSourceScintillator, solidDisk);
+	G4SubtractionSolid* SourceScintillator_No_Disk_Ring = new G4SubtractionSolid("SourceScintillator_No_Disk_Ring", SourceScintillator_No_Disk, solidRing);
 
-	G4Tubs* solidOutside = new G4Tubs("solidOutside", 0.*nm, Scintillator_radius, Scintillator_height, 0.*deg, 360.*deg);
-	G4SubtractionSolid* SourceScintillator_No_Disk_Ring = new G4SubtractionSolid("SourceScintillator_No_Disk_Ring", solidOutside, solidInside);
-	logic_SourceScintillator = new G4LogicalVolume(SourceScintillator_No_Disk_Ring, SiO2, "logic_SourceScintillator");
+	logic_SourceScintillator = new G4LogicalVolume(SourceScintillator_No_Disk_Ring, Scintillator_Material, "logic_SourceScintillator");
 	phys_SourceScintillator = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, 0.*m), logic_SourceScintillator, "phys_SourceScintillator", logicWorld, false, 0, true);	
+
+
 }
-/*
-void MyDetectorConstruction::ConstructAerogel() {
-G4double size_Scintillator = ring_radius+1./2*mm;
-G4double height_of_Scintillator = ring_height_half+4.0/2*mm;
-//Scintillator
-G4Tubs* BaseSourceScintillator = new G4Tubs("Base", 0. * nm, size_outer_radius, inner_size_of_height + 1.0 / 2 * mm, 0. * deg, 360. * deg);
-G4IntersectionSolid* Intersection_Part_Scintillator = new G4IntersectionSolid("Intersection_Part_Scintillator", BaseSourceScintillator, Foil_Geometry);
-SourceScintillator_SubtractOuter = new G4SubtractionSolid("SourceScintillatorSubtractOuter", BaseSourceScintillator, Intersection_Part_Scintillator);
-//Aerogel
-G4Box* BaseSourceAerogel = new G4Box("base", 5. * cm, 5. * cm, 5. * cm);
-G4SubtractionSolid* SourceAerogel_SubtractInner = new G4SubtractionSolid("SourceAerogelSubtractInner", BaseSourceAerogel, Foil_Geometry);
-AerogelGeometry = new G4SubtractionSolid("AerogelGeometry", SourceAerogel_SubtractInner, SourceScintillator_SubtractOuter);
-logic_SourceAerogel = new G4LogicalVolume(AerogelGeometry, SiO2, "logic_SourceAerogel");
-phys_SourceAerogel = new G4PVPlacement(0, G4ThreeVector(0. * m, 0. * m, 0. * m), logic_SourceAerogel, "phys_SourceAerogel", logicWorld, false, 0, true);
+void MyDetectorConstruction::ConstructSourceAerogel() {
+	solidRing = new G4Tubs("Ring", disk_radius, ring_radius, ring_height_half, 0.*deg, 360.*deg);
+	solidDisk = new G4Tubs("Disk", 0.*nm, disk_radius, disk_height_half, 0.*deg, 360.*deg);
+
+	G4Box* BaseSourceAerogel = new G4Box("aerogel", ring_radius+thick,ring_radius+thick, Aerogel_size);
+	G4Tubs* BaseSourceScintillator = new G4Tubs("base", 0. * nm, Scintillator_radius, Scintillator_height, 0. * deg, 360. * deg);
+	if(isSourceScintillator){
+		G4Tubs* BaseSourceScintillator = new G4Tubs("base", 0.*nm, Scintillator_radius, Scintillator_height, 0.*deg, 360.*deg);
+		BaseSourceAerogel_NoScintillator = new G4SubtractionSolid("BaseSourceAerogel_NoScintillator", BaseSourceAerogel, BaseSourceScintillator);
+		logic_SourceAerogel = new G4LogicalVolume(BaseSourceAerogel_NoScintillator, Aerogel_Material, "logic_SourceAerogel");
+		phys_SourceAerogel = new G4PVPlacement(0, G4ThreeVector(0. * m, 0. * m, 0. * m), logic_SourceAerogel, "phys_SourceAerogel", logicWorld, false, 0, true);
+	}
+	else {
+		BaseSourceAerogel_NoScintillator = new G4SubtractionSolid("BaseSourceAerogel_NoScintillator", BaseSourceAerogel, solidRing);
+		BaseSourceAerogel_NoScintillator = new G4SubtractionSolid("BaseSourceAerogel_NoScintillator", BaseSourceAerogel_NoScintillator, solidDisk);
+
+		logic_SourceAerogel = new G4LogicalVolume(BaseSourceAerogel_NoScintillator, Aerogel_Material, "logic_SourceAerogel");
+		phys_SourceAerogel = new G4PVPlacement(0, G4ThreeVector(0. * m, 0. * m, 0. * m), logic_SourceAerogel, "phys_SourceAerogel", logicWorld, false, 0, true);
+	}
 }
-*/
-// End Aerogel

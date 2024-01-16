@@ -64,7 +64,7 @@ public:
 
 	// From Eltis
 	void ConstructSourceScintillator();
-	//void ConstructAerogel();
+	void ConstructSourceAerogel();
 	// End Eltis
 
 	// For counting energy deposition
@@ -74,16 +74,15 @@ private:
 	G4GenericMessenger* fMessenger;
 
 	// Aerogel
-	G4Material *Aerogel, *SiO2, *H2O;
+	G4Material *Aerogel, *SiO2, *H2O,*Aerogel_Material,*Scintillator_Material;;
 	G4Element *C;
 	// Radioactive Source (Positron Source)
 	G4Material *Ti_, *NaCl;
 	G4Element *Ti;
-	
+	G4double thick, Aerogel_size;
 	// Design-1 CsI Detector
 	G4Material *CsI, *Mylar;
 	G4Material *Kapton, *Polystyrene;
-
 	// World
 	G4Material *Air, *Vacuum, *matWorld;
 	G4Box *solidWorld;
@@ -137,10 +136,12 @@ private:
 	// End CsI Detector
 	
 	// From Eltis, edited by Tom
-	G4bool isSourceScintillator;
+	G4bool isSourceScintillator,isSourceAerogel;
+	G4double Scintillator_radius, Scintillator_height,Scintillator_height_half;
 	G4UnionSolid *Foil_Geometry;
-	G4LogicalVolume *logic_SourceScintillator;
-	G4VPhysicalVolume *phys_SourceScintillator;
+	G4SubtractionSolid* BaseSourceAerogel_NoScintillator;
+	G4LogicalVolume *logicSource, *logic_SourceScintillator,*logic_SourceAerogel;
+	G4VPhysicalVolume *physSource, *phys_SourceScintillator,*phys_SourceAerogel;
 	// End Eltis
 };
 

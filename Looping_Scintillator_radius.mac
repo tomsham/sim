@@ -1,0 +1,7 @@
+/run/numberOfThreads 1
+/run/initialize	
+/control/verbose 2
+/gps/particle ion 
+/gps/ion 11 22 
+
+/control/loop Loop_Scintillator_Single.mac size 9.55 40. 0.1
