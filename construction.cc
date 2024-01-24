@@ -22,11 +22,11 @@ MyDetectorConstruction::MyDetectorConstruction()
 	// Positronium Source
 	isLiquid = false;
 	isCupDetector = false;
-	isLAB_Acrylic = true;
+	isLAB_Acrylic = false;
 	isAcrylicBlock = false;
 
 	isDetector_Shell = false;
-	isDetector_Cylinder = false;
+	isDetector_Cylinder = true;
 
 	// CsI crystal detector
 	isCsI = false;
@@ -135,10 +135,10 @@ void MyDetectorConstruction::DefineMaterials()
 	Aerogel->AddMaterial(H2O, 4.*perCent);
 	//Aerogel->AddElement(C, 0.1*perCent);
 
-	G4double energyAerogel[2] = { hc/900, hc/200 };		// 900nm, 200nm
-	G4double rindexAerogel[2] = { 1.036, 1.036 };
+	G4double energyAerogel[11] = { hc/700,	hc/660,		hc/650,		hc/600, 	hc/575, 	hc/550, 	hc/500, 	hc/475, 	hc/450, 	hc/400,	hc/350 };		// 900nm, 200nm
+	G4double rindexAerogel[11] = { 1.0282,	1.028225,	1.028250,	1.028325, 	1.0284, 	1.028425, 	1.02855, 	1.02865, 	1.028775,	1.0291,	1.02945};
 	G4MaterialPropertiesTable* mptAerogel = new G4MaterialPropertiesTable();
-	mptAerogel->AddProperty("RINDEX", energyAerogel, rindexAerogel, 2);
+	mptAerogel->AddProperty("RINDEX", energyAerogel, rindexAerogel, 11);
 	Aerogel->SetMaterialPropertiesTable(mptAerogel);
 	// End Aerogel
 
@@ -501,7 +501,7 @@ void MyDetectorConstruction::ConstructCylinder_Detector() {
 // Ideal Detector
 void MyDetectorConstruction::ConstructShell_Detector() {
 	//Large sphere
-	G4double inner_radius = 3*cm;
+	G4double inner_radius = 15*cm;
 	//G4double inner_radius = 70*cm;
 	G4double outer_radius = inner_radius + 1*nm;
 	solidDetector_Shell = new G4Sphere("solidDetector_Shell", inner_radius, outer_radius, 0.*deg, 360.*deg, 0.*deg, 360.*deg);

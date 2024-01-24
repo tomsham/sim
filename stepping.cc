@@ -12,8 +12,8 @@ void MySteppingAction::UserSteppingAction(const G4Step* step)
 {
     G4String particle_name = step->GetTrack()->GetDefinition()->GetParticleName();
     G4double postKE = step->GetTrack()->GetKineticEnergy();
-    ReadOut(step);
-    //SaveToDataFile(step);
+    //ReadOut(step);
+    SaveToDataFile(step);
     //G4Track *track = step->GetTrack();
 }
 

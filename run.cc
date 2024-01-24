@@ -5,7 +5,7 @@ MyRunAction::MyRunAction(){
 	G4AnalysisManager *man = G4AnalysisManager::Instance();
 
     // Here to select which type of Data File to be created. Options: Normal, Vertex, Step
-    G4int select = 2;
+    G4int select = 0;
     if (select == 0)
         CreateDataFile(man);
     else if (select == 1)
