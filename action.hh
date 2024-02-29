@@ -15,6 +15,7 @@ public:
 	~MyActionInitialization();
 
 	// The Build function runs the particle guns, stepping computations, etc.
+	// Build() for worker threads, BuildForMaster() for master threads
 	virtual void Build() const;
 	virtual void BuildForMaster() const;
 };

@@ -1,0 +1,11 @@
+/run/numberOfThreads 16
+/run/initialize
+
+#Enable command echo
+/control/verbose 0
+
+#Set the active region
+/control/execute test_leakage_region_setup.mac
+
+/gps/ene/mono 1.2746 MeV
+/run/beamOn 100000

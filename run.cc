@@ -5,7 +5,7 @@ MyRunAction::MyRunAction(){
 	G4AnalysisManager *man = G4AnalysisManager::Instance();
 
     // Here to select which type of Data File to be created. Options: Normal, Vertex, Step
-    G4int select = 2;
+    G4int select = 0;
     if (select == 0)
         CreateDataFile(man);
     else if (select == 1)
@@ -43,7 +43,7 @@ void MyRunAction::CreateDataFile(G4AnalysisManager* man)
     man->CreateNtupleSColumn("CreatorProcessName");
     man->FinishNtuple(0);
 
-    std::string partical_name[] = {"positron", "electron", "gamma", "nu_e", "Ne22", "Ne22_excited", "Na22" };
+    std::string partical_name[] = {"positron", "electron", "gamma", "nu_e" };
     int length_partical_name = sizeof(partical_name)/sizeof(std::string); // length_str = 7
     for (int i = 0; i < length_partical_name; i++)
     {
@@ -59,6 +59,7 @@ void MyRunAction::CreateDataFile(G4AnalysisManager* man)
         man->CreateNtupleDColumn("cosTheta");
         man->CreateNtupleDColumn("Phi");
         man->CreateNtupleSColumn("CreatorProcessName");
+        man->CreateNtupleSColumn("DetectorName");
         man->FinishNtuple(i+1);
     }
 }
@@ -72,7 +73,7 @@ void MyRunAction::CreateDataFile_Vertex(G4AnalysisManager* man)
     man->CreateNtupleSColumn("CreatorProcessName");
     man->FinishNtuple(0);
 
-    std::string partical_name[] = {"positron", "electron", "gamma", "nu_e", "Ne22", "Ne22_excited", "Na22" };
+    std::string partical_name[] = {"positron", "electron", "gamma", "nu_e" };
     int length_partical_name = sizeof(partical_name)/sizeof(std::string); // length_str = 7
     for (int i = 0; i < length_partical_name; i++)
     {
@@ -101,7 +102,8 @@ void MyRunAction::CreateDataFile_Step(G4AnalysisManager* man)
     man->CreateNtupleSColumn("CreatorProcessName");
     man->FinishNtuple(0);
 
-    std::string partical_name[] = {"positron", "electron", "gamma", "nu_e"};
+    //std::string partical_name[] = {"positron", "electron", "gamma", "nu_e"};
+    std::string partical_name[] = {"positron", "electron", "gamma", "nu_e" };
     int length_partical_name = sizeof(partical_name)/sizeof(std::string); // length_str = 4
     for (int i = 0; i < length_partical_name; i++)
     {

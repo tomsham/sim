@@ -12,7 +12,7 @@ void MySteppingAction::UserSteppingAction(const G4Step* step)
 {
     G4String particle_name = step->GetTrack()->GetDefinition()->GetParticleName();
     G4double postKE = step->GetTrack()->GetKineticEnergy();
-    ReadOut(step);
+    //ReadOut(step);
     //SaveToDataFile(step);
     //G4Track *track = step->GetTrack();
 }
@@ -25,10 +25,11 @@ void MySteppingAction::SaveToDataFile(const G4Step* step){
     G4String particle_type = track->GetParticleDefinition()->GetParticleType();						//Get the particle type
     G4String particle_name = track->GetDefinition()->GetParticleName();								//Get the particle name
     G4String creator_process_name = "NULL";
-    if (track->IsGoodForTracking())
+    if (track->GetCreatorProcess())
         creator_process_name = track->GetCreatorProcess()->GetProcessName();				        //Get the process name of the vertex of track 
 
-    std::string partical_name_list[] = {"e+", "e-", "gamma", "nu_e"};
+    //std::string partical_name_list[] = {"e+", "e-", "gamma", "nu_e"};
+    std::string partical_name_list[] = {"e+", "e-", "gamma", "nu_e" };
     int length_partical_name_list = sizeof(partical_name_list)/sizeof(std::string);					// length_str = 4
 
     for (int i = 0; i < length_partical_name_list; i++)
@@ -122,7 +123,7 @@ void MySteppingAction::ReadOut(const G4Step* step) {
     G4double preLocalTime = prestep->GetLocalTime();
     G4double postLocalTime = poststep->GetLocalTime();
 
-    if (track->IsGoodForTracking())
+    if (track->GetCreatorProcess())
         creator_process_name = track->GetCreatorProcess()->GetProcessName();				        //Get the process name of the vertex of track 
 
     if (trackId != current_track) {

@@ -1,10 +1,5 @@
 #include "physics.hh"
 
-#include "G4eMultipleScattering.hh"
-#include "G4eIonisation.hh"
-#include "G4eBremsstrahlung.hh"
-#include "G4eplusAnnihilation.hh"
-
 MyPhysicsList::MyPhysicsList() {
 	//// define EM_interaction, more physics include more time to simulate
 	//RegisterPhysics(new G4EmStandardPhysics());	// EM Opt0

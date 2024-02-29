@@ -23,36 +23,41 @@ G4bool MySensentiveDetector::ProcessHits(G4Step* aStep, G4TouchableHistory* ROhi
 	//SaveToDataFile(aStep, ROhist, track);
 	//SaveToDataFile_Vertex(aStep, ROhist, track);
 
-	G4String Self_Name = track->GetTouchable()->GetVolume()->GetName();
-	G4double mom_z = track->GetMomentum().z();
-	if (Self_Name == "Detector_Cylinder") {
-		SaveToDataFile(aStep, ROhist, track);
-		track->SetTrackStatus(fStopAndKill);
-	}
-	if (Self_Name == "BareSource_Dt") {
-		SaveToDataFile_Vertex(aStep, ROhist, track);
-		track->SetTrackStatus(fStopAndKill);
-	}
-	if (Self_Name == "BS_Disk_Dt" || Self_Name == "BSD_Ring_Dt") {
-		track->SetTrackStatus(fStopAndKill);
-		SaveToDataFile(aStep, ROhist, track);
-	}
-	if (Self_Name == "RingDetector_F" || Self_Name == "PlaneDetector_F") {
-		if (mom_z > 0)
-			SaveToDataFile(aStep, ROhist, track);
-		else
-			track->SetTrackStatus(fStopAndKill);
-	}
-	if (Self_Name == "RingDetector_B" || Self_Name == "PlaneDetector_B") {
-		if (mom_z < 0)
-			SaveToDataFile(aStep, ROhist, track);
-		else
-			track->SetTrackStatus(fStopAndKill);
-	}
-	if (Self_Name == "TubeDetector") {
-		SaveToDataFile(aStep, ROhist, track);
-		track->SetTrackStatus(fStopAndKill);
-	}
+	//G4String Self_Name = track->GetTouchable()->GetVolume()->GetName();
+	////G4String Self_Name = "0";
+	//G4double mom_z = track->GetMomentum().z();
+	//if (Self_Name == "Detector_Cylinder") {
+	//	SaveToDataFile(aStep, ROhist, track);
+	//	track->SetTrackStatus(fStopAndKill);
+	//}
+	//if (Self_Name == "Detector_Cylinder_Ends") {
+	//	SaveToDataFile(aStep, ROhist, track);
+	//	track->SetTrackStatus(fStopAndKill);
+	//}
+	//if (Self_Name == "BareSource_Dt") {
+	//	SaveToDataFile_Vertex(aStep, ROhist, track);
+	//	track->SetTrackStatus(fStopAndKill);
+	//}
+	//if (Self_Name == "BS_Disk_Dt" || Self_Name == "BSD_Ring_Dt") {
+	//	track->SetTrackStatus(fStopAndKill);
+	//	SaveToDataFile(aStep, ROhist, track);
+	//}
+	//if (Self_Name == "RingDetector_F" || Self_Name == "PlaneDetector_F") {
+	//	if (mom_z > 0)
+	//		SaveToDataFile(aStep, ROhist, track);
+	//	else
+	//		track->SetTrackStatus(fStopAndKill);
+	//}
+	//if (Self_Name == "RingDetector_B" || Self_Name == "PlaneDetector_B") {
+	//	if (mom_z < 0)
+	//		SaveToDataFile(aStep, ROhist, track);
+	//	else
+	//		track->SetTrackStatus(fStopAndKill);
+	//}
+	//if (Self_Name == "TubeDetector") {
+	//	SaveToDataFile(aStep, ROhist, track);
+	//	track->SetTrackStatus(fStopAndKill);
+	//}
 	return 0;
 }
 
@@ -61,11 +66,12 @@ void MySensentiveDetector::SaveToDataFile(G4Step* aStep, G4TouchableHistory* ROh
     G4AnalysisManager *man = G4AnalysisManager::Instance();
 	G4String particle_type = track->GetParticleDefinition()->GetParticleType();						//Get the particle type
 	G4String particle_name = track->GetDefinition()->GetParticleName();								//Get the particle name
+	G4String detector_Name = track->GetTouchable()->GetVolume()->GetName();
 	G4String creator_process_name = "NULL";
-	if (track->IsGoodForTracking())
+	if (track->GetCreatorProcess())
 		creator_process_name = track->GetCreatorProcess()->GetProcessName();				//Get the process name of the vertex of track 
 
-    std::string partical_name_list[] = {"e+", "e-", "gamma", "nu_e", "Ne22", "Ne22[1274.577]", "Na22" };
+    std::string partical_name_list[] = {"e+", "e-", "gamma", "nu_e" };
     int length_partical_name_list = sizeof(partical_name_list)/sizeof(std::string);					// length_str = 7
 
     for (int i = 0; i < length_partical_name_list; i++)
@@ -90,6 +96,7 @@ void MySensentiveDetector::SaveToDataFile(G4Step* aStep, G4TouchableHistory* ROh
 			man->FillNtupleDColumn(i+1, 8, costheta);
             man->FillNtupleDColumn(i+1, 9, phi);
             man->FillNtupleSColumn(i+1, 10, creator_process_name);
+            man->FillNtupleSColumn(i+1, 11, detector_Name);
             man->AddNtupleRow(i+1);
         }
     }
@@ -104,10 +111,10 @@ void MySensentiveDetector::SaveToDataFile_Vertex(G4Step* aStep, G4TouchableHisto
 	G4String particle_type = track->GetParticleDefinition()->GetParticleType();						//Get the particle type
 	G4String particle_name = track->GetDefinition()->GetParticleName();								//Get the particle name
 	G4String creator_process_name = "NULL";
-	if (track->IsGoodForTracking())
+	if (track->GetCreatorProcess())
 		creator_process_name = track->GetCreatorProcess()->GetProcessName();						//Get the process name of the vertex of track 
 
-    std::string partical_name_list[] = {"e+", "e-", "gamma", "nu_e", "Ne22", "Ne22[1274.577]", "Na22" };
+    std::string partical_name_list[] = {"e+", "e-", "gamma", "nu_e" };
     int length_partical_name_list = sizeof(partical_name_list)/sizeof(std::string);					// length_str = 7
 
     for (int i = 0; i < length_partical_name_list; i++)
@@ -156,7 +163,7 @@ void MySensentiveDetector::ReadOut(G4Step* aStep, G4Track* track) {
     const G4VTouchable *touchable = aStep->GetPreStepPoint()->GetTouchable();
 	G4String Particle_Name = track->GetDefinition()->GetParticleName();
 	G4String creator_process_name = "NULL";
-	if (track->IsGoodForTracking())
+	if (track->GetCreatorProcess())
 		creator_process_name = track->GetCreatorProcess()->GetProcessName();				//Get the process name of the vertex of track 
 	G4String physVol_name = touchable->GetVolume()->GetName();
 	G4String logicVol_name = touchable->GetVolume()->GetLogicalVolume()->GetName();
@@ -185,7 +192,7 @@ void MySensentiveDetector::ReadOut(G4Step* aStep, G4Track* track) {
 void MySensentiveDetector::ReadOut_Vertex(G4Step* aStep, G4Track* track) {
 	G4String Particle_Name = track->GetDefinition()->GetParticleName();
 	G4String Vertex_Process = "NULL";
-	if (track->IsGoodForTracking())
+	if (track->GetCreatorProcess())
 		Vertex_Process = track->GetCreatorProcess()->GetProcessName();
 	G4ThreeVector Vertex_Position = track->GetVertexPosition();
 	G4ThreeVector Vertex_Momentum_Direction = track->GetVertexMomentumDirection();

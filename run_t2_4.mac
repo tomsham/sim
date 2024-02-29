@@ -8,4 +8,4 @@
 /control/execute region_setup.mac
 
 #Commands below are independent of gps
-/run/beamOn 4
+/run/beamOn 1

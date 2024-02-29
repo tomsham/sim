@@ -4,12 +4,14 @@
 
 #include "G4VUserDetectorConstruction.hh"
 
+#include "globals.hh"
 #include "G4NistManager.hh"
 #include "G4Box.hh"
 #include "G4Tubs.hh"
 #include "G4Sphere.hh"
 #include "G4Cons.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4PhysicalConstants.hh"
 #include "G4LogicalVolume.hh"
 #include "G4VPhysicalVolume.hh"
 #include "G4PVPlacement.hh"
@@ -60,6 +62,8 @@ public:
 	// CsI Detector
 	void ConstructCsI();
 	void ConstructCsI_2();
+	void ConstructCsI_3();
+	void ConstructCsI_4();
 	// End CsI Detector
 
 	// From Eltis
@@ -76,17 +80,20 @@ private:
 	// Aerogel
 	G4Material *Aerogel, *SiO2, *H2O;
 	G4Element *C;
+
 	// Radioactive Source (Positron Source)
-	G4Material *Ti_, *NaCl;
+	G4Material *Ti_, *NaCl;;
 	G4Element *Ti;
 	
-	// Design-1 CsI Detector
+	// CsI Detector
 	G4Material *CsI, *Mylar;
 	G4Material *Kapton, *Polystyrene;
 
+	G4Material *Pb;
+	G4Element *Pb_;
+
 	// World
 	G4Material *Air, *Vacuum, *matWorld;
-	G4Box *solidWorld;
 	G4LogicalVolume *logicWorld;
 	G4VPhysicalVolume *physWorld;
 	// End World
@@ -95,7 +102,6 @@ private:
 	G4Material *matRing, *matDisk, *matSource;
 	G4bool isRing, isDisk, isBareSource, isSource;
 	G4double ring_radius, ring_height_half, disk_radius, disk_height_half, bare_source_radius, bare_source_height_half;
-	G4Tubs *solidRing, *solidDisk, *solidBareSource;
 	G4LogicalVolume *logicRing, *logicDisk, *logicBareSource;
 	G4VPhysicalVolume *physRing, *physDisk, *physBareSource;
 	G4bool isBareSource_Dt, isBS_Disk_Dt, isBSD_Ring_Dt;						//BS = Bare Source, D = Disk, Dt = Detector
@@ -107,7 +113,6 @@ private:
 	G4Material *matContainer, *matLiquid;
 	G4bool isLiquid, isCupDetector;
 	G4double container_radius, container_height_half, container_thickness, d_pos_z;
-	G4Tubs *solidContainer, *solidLiquid, *solidPlaneDetector, *solidRingDetector, *solidTubeDetector;
 	G4LogicalVolume *logiContainer_F, *logiContainer_B, *logicLiquid_F, *logicLiquid_B;		// F = Front, B = Back
 	G4LogicalVolume *logicPlaneDetector_W, *logicPlaneDetector_C, *logicPlaneDetector_L;	// W = World, C = Container, L = Liquid
 	G4LogicalVolume *logicRingDetector, *logicTubeDetector;
@@ -119,18 +124,17 @@ private:
 
 	// Ideal Detector
 	G4bool isDetector_Shell, isDetector_Cylinder;
-	G4Sphere *solidDetector_Shell;
-	G4LogicalVolume *logicDetector_Shell, *logicDetector_Cylinder;
-	G4VPhysicalVolume *physDetector_Shell, *physDetector_Cylinder;
+	G4LogicalVolume *logicDetector_Shell, *logicDetector_Cylinder, *logicDetector_Cylinder_Ends;
+	G4VPhysicalVolume *physDetector_Shell, *physDetector_Cylinder, *physDetector_Cylinder_Ends;
 	// End Ideal Detector
-
+	
 	// CsI Detector
-	G4bool isCsI, isCsI_2;
-	G4double wrapping_thickness;
-	G4Box *solidDetector_H, *solidDetector_V;
-	G4Box *solidCsI;
+	G4bool isCsI, isCsI_2, isCsI_3, isCsI_4;
+	G4int number_of_side, end_selector;
+	G4double wrapping_thickness, delta_phi;
 	G4LogicalVolume *fScoringVolume;
-	G4LogicalVolume *logicCsI;
+	G4LogicalVolume *logicCsI, *logicMylar, *logicPb;
+	G4VPhysicalVolume *physCsI, *physMylar, *physPb;
 	// F = Front, B = Back, L = Left, R = Right, U = Up, D = Down
 	G4LogicalVolume *logicDetector_F, *logicDetector_B, *logicDetector_L, *logicDetector_R, *logicDetector_U, *logicDetector_D;
 	G4VPhysicalVolume *physDetector_F, *physDetector_B, *physDetector_L, *physDetector_R, *physDetector_U, *physDetector_D;

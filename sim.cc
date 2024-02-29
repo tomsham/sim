@@ -8,6 +8,7 @@
 #include "G4VisManager.hh"
 #include "G4VisExecutive.hh"
 #include "G4UImanager.hh"
+#include "G4TrajectoryDrawByParticleID.hh"
 
 #include "construction.hh"
 #include "physics.hh"
@@ -28,7 +29,7 @@ int main(int argc, char** argv)	// argc = argument count, argv = argument vector
 	G4bool physics_selector = 0;	// 0 = MyPhysicsList, 1 = Default PhysicsList
 	if (physics_selector == 0) {
 		G4VModularPhysicsList* physicsList = new MyPhysicsList();
-		runManager->SetUserInitialization(physicsList);			// Set PhysicsList of the RunManager using MyPhysicsList
+		runManager->SetUserInitialization(physicsList);					// Set PhysicsList of the RunManager using MyPhysicsList
 	}
 	else {
 		G4VModularPhysicsList* physicsList = new FTFP_BERT;
@@ -48,6 +49,10 @@ int main(int argc, char** argv)	// argc = argument count, argv = argument vector
 
 		G4VisManager* visManager = new G4VisExecutive();
 		visManager->Initialize();
+
+		G4TrajectoryDrawByParticleID* model = new G4TrajectoryDrawByParticleID; 
+		model->Set("nu_e", "yellow");
+		visManager->RegisterModel(model);
 
 		G4UImanager* UImanager = G4UImanager::GetUIpointer();
 		UImanager->ApplyCommand("/control/execute vis.mac");					// Visualize the Construction of Simulation
