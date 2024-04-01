@@ -82,7 +82,7 @@ private:
 	G4Element *C;
 
 	// Radioactive Source (Positron Source)
-	G4Material *Ti_, *NaCl;;
+	G4Material *Ti_, *NaCl;
 	G4Element *Ti;
 	
 	// CsI Detector
