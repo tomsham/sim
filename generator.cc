@@ -45,7 +45,6 @@ MyPrimaryGenerator::~MyPrimaryGenerator(){
 void MyPrimaryGenerator::ParticleDefinition(){
 	fGamma = G4ParticleTable::GetParticleTable()->FindParticle("gamma");
 	fPositron = G4ParticleTable::GetParticleTable()->FindParticle("e+");
-	//geantino is a virtual particle in simulation, it juse take a place for further definition, eg. can be replaced in macro file.
 	fGeantino = G4ParticleTable::GetParticleTable()->FindParticle("geantino");
 	fo_Ps = G4OrthoPositronium::Definition();
 	fp_Ps = G4ParaPositronium::Definition();
@@ -68,24 +67,6 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event* anEvent){
 	}
 	else {
 		if (pd_ParticleGun == G4Geantino::Geantino()) {
-			/*
-			//4 pi solid angle
-			G4double pi  = 3.14159265358979323846;
-			G4double cosTheta = 2*G4UniformRand()-1;	//cosTheta = (-1,1), G4UniformRand() = (0,1) = ]0,1[
-			G4double phi = 2*pi*G4UniformRand();		//phi = ]0,2pi[
-			G4double sinTheta = std::sqrt(1.-cosTheta*cosTheta);
-			G4double ux = sinTheta*std::cos(phi), uy = sinTheta*std::sin(phi), uz = cosTheta;
-			fParticleGun->SetParticleMomentumDirection(G4ThreeVector(ux,uy,uz));	//For G4ParticleGun
-			G4double etot = fParticleGun->GetParticleEnergy();
-
-			G4AnalysisManager* man = G4AnalysisManager::Instance();
-			man->FillNtupleDColumn(0, 0, ux);			//cm
-			man->FillNtupleDColumn(0, 1, uy);			//cm
-			man->FillNtupleDColumn(0, 2, uz);			//cm
-			man->FillNtupleDColumn(0, 3, etot/MeV);		//MeV
-			man->AddNtupleRow(0);
-			//4 pi solid angle
-			*/
 			fIon = G4IonTable::GetIonTable()->GetIon(Z, A, ex_energy);
 			fParticleGun->SetParticleDefinition(fIon);
 			fParticleGun->GeneratePrimaryVertex(anEvent);

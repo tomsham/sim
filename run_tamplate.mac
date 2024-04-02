@@ -1,0 +1,29 @@
+# run_t{x0}_{x1}.mac
+# t{x0} means using x0 threads
+# {x1} means run x1 times
+# eg. run_t16_100k.mac, using 16 threads an run 100k times
+/run/numberOfThreads 2
+/run/initialize
+
+# Enable command echo
+/control/verbose 0
+
+# Set the active region of Na-22
+/control/execute region_setup.mac
+
+# Run a simulation
+/run/beamOn 1
+
+# You can add some commands to create your own macro file
+# Set the name of output root file
+#/MyDetector/setFileName test_1
+#/run/beamOn 1
+# Change the file name and some parameters
+#/MyDetector/setFileName test_2
+#/MyDetector/CsI/isCsI_2 1
+#/MyDetector/CsI/number_of_side 16
+#/MyDetector/CsI/delta_phi 15 deg
+# Reinitiate the geometery
+#/run/reinitializeGeometry 1
+#/run/initialize
+#/run/beamOn 1

@@ -12,9 +12,8 @@ class MyRunAction : public G4UserRunAction
 public:
 	MyRunAction();
 	~MyRunAction();
-	void CreateDataFile(G4AnalysisManager*);
-	void CreateDataFile_Vertex(G4AnalysisManager*);
-	void CreateDataFile_Step(G4AnalysisManager*);
+	void CreateDataFile_SensitiveDetector(G4AnalysisManager*);
+	void CreateDataFile_Stepping(G4AnalysisManager*);
 	virtual void BeginOfRunAction(const G4Run*);
 	virtual void EndOfRunAction(const G4Run*);
 };

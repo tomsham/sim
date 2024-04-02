@@ -32,6 +32,7 @@ public:
 	virtual G4VPhysicalVolume* Construct();
 	virtual void ConstructSDandField();
 	void DefineMaterials();
+	void DefineMessenger();
 
 	/*The construction functions with underline are the functions of ideal detectors*/
 
@@ -48,7 +49,6 @@ public:
 	void ConstructLiquidScintillator();
 	void ConstructCup_Detector();
 	void ConstructLAB_Acrylic();
-	void ConstructAcrylicBlock();
 	// End Liquid scintillator
 
 	// Ideal Cylinder Detector
@@ -66,13 +66,10 @@ public:
 	void ConstructCsI_4();
 	// End CsI Detector
 
-	// From Eltis
-	void ConstructSourceScintillator();
-	//void ConstructAerogel();
-	// End Eltis
-
 	// For counting energy deposition
 	G4LogicalVolume* GetScoringVolume() const {return fScoringVolume;};
+
+	static G4String file_name;
 
 private:
 	G4GenericMessenger* fMessenger;
@@ -119,7 +116,7 @@ private:
 	G4VPhysicalVolume *physContainer_F, *physContainer_B, *physLiquid_F, *physLiquid_B, *physPlaneDetector, *physRingDetector, *physTubeDetector;
 
 	G4Material *C16H26, *C17H28, *C18H30, *C19H32, *LAB, *Acrylic;
-	G4bool isLAB_Acrylic, isAcrylicBlock;
+	G4bool isLAB_Acrylic;
 	// End Liquid scintillator
 
 	// Ideal Detector
@@ -139,13 +136,6 @@ private:
 	G4LogicalVolume *logicDetector_F, *logicDetector_B, *logicDetector_L, *logicDetector_R, *logicDetector_U, *logicDetector_D;
 	G4VPhysicalVolume *physDetector_F, *physDetector_B, *physDetector_L, *physDetector_R, *physDetector_U, *physDetector_D;
 	// End CsI Detector
-	
-	// From Eltis, edited by Tom
-	G4bool isSourceScintillator;
-	G4UnionSolid *Foil_Geometry;
-	G4LogicalVolume *logic_SourceScintillator;
-	G4VPhysicalVolume *phys_SourceScintillator;
-	// End Eltis
 };
 
 #endif

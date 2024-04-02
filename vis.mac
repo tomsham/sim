@@ -7,8 +7,8 @@
 /vis/open OGL
 #/vis/viewer/set/projection p
 /vis/viewer/set/projection o
-#/vis/viewer/set/viewpointVector 1 1 1
-/vis/viewer/set/viewpointVector 1. 0. 0.
+/vis/viewer/set/viewpointVector 1 1 1
+#/vis/viewer/set/viewpointVector 1. 0. 0.
 #/vis/viewer/set/viewpointVector 0. 0. 1.
 #/vis/viewer/set/viewpointVector 0. 1. 0.000001
 /vis/drawVolume
