@@ -4,9 +4,6 @@ MyDetectorConstruction::MyDetectorConstruction() {
 	// Define required materials
 	DefineMaterials();
 
-	// The A is a placeholder for the user defined commands (fMessenger)
-	G4int placeHolder = 0;
-
 	// Here to control the construction selector to select which part should be constructed
 	// Radioactive Source (Positron Source)
 	isRing = false;
@@ -21,21 +18,16 @@ MyDetectorConstruction::MyDetectorConstruction() {
 	// Positronium Source
 	isLiquid = false;
 	isCupDetector = false;
-	isLAB_Acrylic = true;
-	isAcrylicBlock = false;
+	isLAB_Acrylic = false;
 
-	isDetector_Shell = false;
+	isDetector_Shell = true;
 	isDetector_Cylinder = false;
 
 	// CsI crystal detector
 	isCsI = false;
 	isCsI_2 = false;
-	isCsI_3 = true;
+	isCsI_3 = false;
 	isCsI_4 = false;
-
-	// Aerogel, from Eltis
-	isSourceScintillator = false;
-	// End Aerogel
 
 	// Set the material for each logical volume
 	matWorld = Air; //Vacuum;
@@ -46,18 +38,6 @@ MyDetectorConstruction::MyDetectorConstruction() {
 	logicDetector_Shell = NULL;
 	logicDetector_Cylinder = NULL;
 	logicDetector_Cylinder_Ends = NULL;
-
-	logicBareSource_Dt = NULL;
-	logicBS_Disk_Dt = NULL;
-	logicBSD_Ring_Dt = NULL;
-
-	logicPlaneDetector_W = NULL;
-	logicPlaneDetector_C = NULL;
-	logicPlaneDetector_L = NULL;
-	logicRingDetector = NULL;
-	logicTubeDetector = NULL;
-	logicCsI = NULL;
-	logicMylar = NULL;
 
 	// Parameters for adjusting size of the shape of predefined objects
 	ring_radius = 19.1/2*mm;
@@ -74,35 +54,15 @@ MyDetectorConstruction::MyDetectorConstruction() {
 	wrapping_thickness = 13.*um;			//The wrapping thickness of CsI crystals, 13.e-6 m = 13. um
 
 	number_of_side = 10;					// number_of_side should be >= 3
-	delta_phi = 0.*deg;					// rotate 0, 15, 30, 45 deg
+	delta_phi = 0.*deg;						// rotate 0, 15, 30, 45 deg
 	end_selector = 0;						// Two ends of the Cylinder for CsI_2, 0 is to not construct; 1 is cross type; 2 is offset type; 3 is offset_plus type; 4 is cross type 3 layer,
 	
-	// These are user defined commands for use in User-Interface(UI) mode and batch mode(using macro file)
-	fMessenger = new G4GenericMessenger(this, "/@MyDetector/", "Macros");
-	fMessenger->DeclareProperty("control/execute region_setup.mac", placeHolder, "Set the active region (cylinder locate at origin, radius = 9.53/2*mm, half height = 0.0001*mm)");
-	fMessenger->DeclareProperty("control/execute rebuild.mac",placeHolder,"Rebuild Selected Physical Volume inside a 1.5*1.5*1.5 m^3 Cubic World contains Air, its center is the origin");
-	fMessenger->DeclareProperty("isShell_Detector", isDetector_Shell, "Construct Shell Detector (spherical shell locate at origin, inner radius = 3*cm, thickness = 1*nm)");
-
-	fMessenger = new G4GenericMessenger(this, "/@MyDetector/Source/", "Source control");
-	fMessenger->DeclareProperty("isSource", isSource, "Construct the whole Souce");
-	fMessenger->DeclareProperty("isBareSource", isBareSource, "Construct the BareSouce (cylinder locate at origin, radius = 9.53/2*mm, half height = 0.0001 mm)");
-	fMessenger->DeclareProperty("isDisk", isDisk, "Construct the Disk (cylinder locate at origin, radius = 9.53/2*mm, half height = 0.00508 mm)");
-	fMessenger->DeclareProperty("isRing", isRing, "Construct the Ring (tube locate at origin, inner radius = 9.53/2*mm, outer radius = 19.1/2*mm, half height = 0.254 mm)");
-
-	fMessenger = new G4GenericMessenger(this, "/@MyDetector/Container/", "Container control");
-	fMessenger->DeclareProperty("isLiquid", isLiquid, "Construct the Ti-Container and Water (2 cylinders locate in front and back of the Source, radius = 19.1/2*mm, half height = 1 cm)");
-	fMessenger->DeclareProperty("isCupDetector", isCupDetector, "Select the detectors inside the Ti-Container and Water (including Plane Detector and Tube Detector, the Plane Detector has spacing = 0.02 mm)");
-	fMessenger->DeclarePropertyWithUnit("container_thickness", "mm", container_thickness, "Set the thickness of container. Default = 1 mm.");
-	fMessenger->DeclarePropertyWithUnit("d_pos_z", "mm", d_pos_z,"Set the spacing between two nearest plane detectors. Default = 0.02 mm, Default Amount of Plane Detetors = (int)(2*mm/d_pos_z) = 100");
-
-	fMessenger = new G4GenericMessenger(this, "/@MyDetector/CsI/", "CsI control");
-	fMessenger->DeclarePropertyWithUnit("self_rotation", "deg", delta_phi, "Set the rotation angle of CsI. Default = 0 deg");
-	fMessenger->DeclareProperty("number_of_side", number_of_side, "Set the side number of regular polygon formed by CsI. Default = 10, number_of_side should be >= 3");
-	fMessenger->DeclareProperty("isCsI_2", isCsI_2, "Turn on/off");
-	fMessenger->DeclareProperty("end_selector", end_selector, "Select two ends of the Cylinder. Default = 0, 0 is to not construct; 1 is cross type; 2 is offset type; 3 is offset_plus type; 4 is cross type 3 layer,");
+	DefineMessenger();
 }
 MyDetectorConstruction::~MyDetectorConstruction()
 {}
+
+G4String MyDetectorConstruction::file_name = "";
 
 void MyDetectorConstruction::DefineMaterials() {
 	G4NistManager* nist = G4NistManager::Instance();
@@ -224,6 +184,35 @@ void MyDetectorConstruction::DefineMaterials() {
 	// End Acrylic
 }
 
+void MyDetectorConstruction::DefineMessenger() {
+	// The A is a placeholder for the user defined commands (fMessenger)
+	G4int placeHolder = 0;
+	// These are user defined commands for use in User-Interface(UI) mode and batch mode(using macro file)
+	fMessenger = new G4GenericMessenger(this, "/MyDetector/", "Macros");
+	fMessenger->DeclareProperty("control/execute region_setup.mac", placeHolder, "Set the active region (cylinder locate at origin, radius = 9.53/2*mm, half height = 0.0001*mm)");
+	fMessenger->DeclareProperty("control/execute rebuild.mac",placeHolder,"Rebuild Selected Physical Volume inside a 1.5*1.5*1.5 m^3 Cubic World contains Air, its center is the origin");
+	fMessenger->DeclareProperty("isDetector_Shell", isDetector_Shell, "Construct Shell Detector (spherical shell locate at origin, inner radius = 3*cm, thickness = 1*nm)");
+	fMessenger->DeclareProperty("setFileName", file_name, "Set the name of output root file");
+
+	fMessenger = new G4GenericMessenger(this, "/MyDetector/Source/", "Source control");
+	fMessenger->DeclareProperty("isSource", isSource, "Construct the whole Souce");
+	fMessenger->DeclareProperty("isBareSource", isBareSource, "Construct the BareSouce (cylinder locate at origin, radius = 9.53/2*mm, half height = 0.0001 mm)");
+	fMessenger->DeclareProperty("isDisk", isDisk, "Construct the Disk (cylinder locate at origin, radius = 9.53/2*mm, half height = 0.00508 mm)");
+	fMessenger->DeclareProperty("isRing", isRing, "Construct the Ring (tube locate at origin, inner radius = 9.53/2*mm, outer radius = 19.1/2*mm, half height = 0.254 mm)");
+
+	fMessenger = new G4GenericMessenger(this, "/MyDetector/Container/", "Container control");
+	fMessenger->DeclareProperty("isLiquid", isLiquid, "Construct the Ti-Container and Water (2 cylinders locate in front and back of the Source, radius = 19.1/2*mm, half height = 1 cm)");
+	fMessenger->DeclareProperty("isCupDetector", isCupDetector, "Select the detectors inside the Ti-Container and Water (including Plane Detector and Tube Detector, the Plane Detector has spacing = 0.02 mm)");
+	fMessenger->DeclarePropertyWithUnit("container_thickness", "mm", container_thickness, "Set the thickness of container. Default = 1 mm.");
+	fMessenger->DeclarePropertyWithUnit("d_pos_z", "mm", d_pos_z,"Set the spacing between two nearest plane detectors. Default = 0.02 mm, Default Amount of Plane Detetors = (int)(2*mm/d_pos_z) = 100");
+
+	fMessenger = new G4GenericMessenger(this, "/MyDetector/CsI/", "CsI control");
+	fMessenger->DeclarePropertyWithUnit("self_rotation", "deg", delta_phi, "Set the rotation angle of CsI. Default = 0 deg");
+	fMessenger->DeclareProperty("number_of_side", number_of_side, "Set the side number of regular polygon formed by CsI. Default = 10, number_of_side should be >= 3");
+	fMessenger->DeclareProperty("isCsI_2", isCsI_2, "Turn on/off");
+	fMessenger->DeclareProperty("end_selector", end_selector, "Select two ends of the Cylinder. Default = 0, 0 is to not construct; 1 is cross type; 2 is offset type; 3 is offset_plus type; 4 is cross type 3 layer,");
+}
+
 // Construct All physical volumes
 G4VPhysicalVolume* MyDetectorConstruction::Construct() {
 	G4double xWorld = 0.75*m;
@@ -261,8 +250,6 @@ G4VPhysicalVolume* MyDetectorConstruction::Construct() {
 		ConstructCup_Detector();
 	if (isLAB_Acrylic)
 		ConstructLAB_Acrylic();
-	if (isAcrylicBlock)
-		ConstructAcrylicBlock();
 
 	if (isDetector_Shell)
 		ConstructShell_Detector();
@@ -278,11 +265,6 @@ G4VPhysicalVolume* MyDetectorConstruction::Construct() {
 	if (isCsI_4)
 		ConstructCsI_4();
 
-	// From Eltis, edited by Tom
-	if (isSourceScintillator)
-		ConstructSourceScintillator();
-	// End Eltis
-
 	return physWorld;
 }
 
@@ -295,31 +277,6 @@ void MyDetectorConstruction::ConstructSDandField() {
 		logicDetector_Cylinder->SetSensitiveDetector(sensDet);
 	if(logicDetector_Cylinder_Ends != NULL)
 		logicDetector_Cylinder_Ends->SetSensitiveDetector(sensDet);
-
-	if(logicBareSource_Dt != NULL)
-		logicBareSource_Dt->SetSensitiveDetector(sensDet);
-	if(logicBS_Disk_Dt != NULL)
-		logicBS_Disk_Dt->SetSensitiveDetector(sensDet);
-	if(logicBSD_Ring_Dt != NULL)
-		logicBSD_Ring_Dt->SetSensitiveDetector(sensDet);
-
-	// Ideal Cup_Detector
-	if(logicPlaneDetector_W != NULL)
-		logicPlaneDetector_W->SetSensitiveDetector(sensDet);
-	if(logicPlaneDetector_C != NULL)
-		logicPlaneDetector_C->SetSensitiveDetector(sensDet);
-	if(logicPlaneDetector_L != NULL)
-		logicPlaneDetector_L->SetSensitiveDetector(sensDet);
-	if(logicRingDetector != NULL)
-		logicRingDetector->SetSensitiveDetector(sensDet);
-	if(logicTubeDetector != NULL)
-		logicTubeDetector->SetSensitiveDetector(sensDet);
-	// End Ideal Cup_Detector
-
-	/*if(logicCsI != NULL)
-		logicCsI->SetSensitiveDetector(sensDet);
-	if(logicMylar != NULL)
-		logicMylar->SetSensitiveDetector(sensDet);*/
 }
 
 // Positron Source
@@ -487,30 +444,28 @@ void MyDetectorConstruction::ConstructLAB_Acrylic() {
 	physContainer_B = new G4PVPlacement(rotY_90_2*transZ, logicContainer, "physContainer_B", logicWorld, false, 0, true);
 	G4VPhysicalVolume* physLAB = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, 2.*mm), logicLAB, "physLAB", logicContainer, false, 0, true);
 }
-void MyDetectorConstruction::ConstructAcrylicBlock() {
-	G4Box* solidA = new G4Box("solidA", 0.5*m, 0.5*m, 0.25*m);
-
-	G4LogicalVolume* logicBlock = new G4LogicalVolume(solidA, Acrylic, "logicBlock");
-	G4Translate3D transZ(G4ThreeVector(0.*m, 0.*m, 0.25*m));
-
-	physContainer_F = new G4PVPlacement(transZ, logicBlock, "physContainer_F", logicWorld, false, 0, true);
-}
 // End Liquid scintillator and CupDetector
 
 // Ideal Detector
 void MyDetectorConstruction::ConstructCylinder_Detector() {
 	G4double cylinder_thickness = 1.*mm;
+	G4double cylinder_radius = 55*cm;
+	G4double cylinder_height_half = cylinder_radius;
+	G4cout << "cylinder_height_half = " << cylinder_height_half << G4endl;
 
-	G4Tubs *solidInside = new G4Tubs("solidInside", 0.*nm, ring_radius+cylinder_thickness/2, ring_height_half+cylinder_thickness/2, 0.*deg, 360.*deg);
-	G4Tubs *solidOutside = new G4Tubs("solidOutside", 0.*nm, ring_radius+cylinder_thickness, ring_height_half+cylinder_thickness, 0.*deg, 360.*deg);
-	G4SubtractionSolid *solidDetector_Cylinder = new G4SubtractionSolid("solidDetector_Cylinder", solidOutside, solidInside);
+	G4Tubs *solidDetector_Cylinder = new G4Tubs("solidDetector_Cylinder", cylinder_radius, cylinder_radius + cylinder_thickness, cylinder_height_half, 0.*deg, 360.*deg);
+	G4Tubs *solidTwo_Ends = new G4Tubs("solidTwo_Ends", 0.*nm, cylinder_radius, cylinder_thickness, 0.*deg, 360.*deg);
 	logicDetector_Cylinder = new G4LogicalVolume(solidDetector_Cylinder, matWorld, "logicDetector_Cylinder");
-	physDetector_Cylinder = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, 0.*m), logicDetector_Cylinder, "Detector_Cylinder", logicWorld, false, 0, true);
+	logicDetector_Cylinder_Ends = new G4LogicalVolume(solidTwo_Ends, matWorld, "logicDetector_Cylinder_Ends");
+
+	physDetector_Cylinder = new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicDetector_Cylinder, "Detector_Cylinder", logicWorld, false, 0, true);
+	physDetector_Cylinder_Ends = new G4PVPlacement(0, G4ThreeVector(0., 0., cylinder_height_half + cylinder_thickness/2), logicDetector_Cylinder_Ends, "Detector_Cylinder_Ends", logicWorld, false, 0, true);
+	physDetector_Cylinder_Ends = new G4PVPlacement(0, G4ThreeVector(0., 0., -(cylinder_height_half + cylinder_thickness/2)), logicDetector_Cylinder_Ends, "Detector_Cylinder_Ends", logicWorld, false, 0, true);
 }
 void MyDetectorConstruction::ConstructShell_Detector() {
 	G4double shell_thickness = 1.*mm;
 	//Large sphere
-	G4double inner_radius = 3*cm;
+	G4double inner_radius = 10*cm;
 	//G4double inner_radius = 70*cm;
 	G4double outer_radius = inner_radius + shell_thickness;
 	G4Sphere* solidDetector_Shell = new G4Sphere("solidDetector_Shell", inner_radius, outer_radius, 0.*deg, 360.*deg, 0.*deg, 360.*deg);
@@ -652,7 +607,7 @@ void MyDetectorConstruction::ConstructCsI_2() {
 	// Two ends of the Cylinder, 0 is to not construct; 1 is cross type; 2 is offset type; 3 is offset_plus type; 4 is cross type 3 layer,
 	//end_selector = 3;
 	if (end_selector == 0) {
-		G4cout << "Don't construct CsI at two ends." << G4endl;
+		G4cout << "Did not construct CsI at two ends." << G4endl;
 	}
 	else if (end_selector == 1) {
 		for (G4int i = 0; i < number_at_ends; i++) {
@@ -703,26 +658,14 @@ void MyDetectorConstruction::ConstructCsI_2() {
 		}
 	}
 	physCsI = new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicCsI, "physCsI", logicMylar, false, 0, true);
-
-	G4double cylinder_thickness = 1.*mm;
-	G4double cylinder_radius = 50*cm;
-	G4double cylinder_height_half = cylinder_radius;
-	G4cout << "cylinder_height_half = " << cylinder_height_half << G4endl;
-
-	G4Tubs *solidDetector_Cylinder = new G4Tubs("solidDetector_Cylinder", cylinder_radius, cylinder_radius + cylinder_thickness, cylinder_height_half, 0.*deg, 360.*deg);
-	G4Tubs *solidTwo_Ends = new G4Tubs("solidTwo_Ends", 0.*nm, cylinder_radius, cylinder_thickness, 0.*deg, 360.*deg);
-	logicDetector_Cylinder = new G4LogicalVolume(solidDetector_Cylinder, matWorld, "logicDetector_Cylinder");
-	logicDetector_Cylinder_Ends = new G4LogicalVolume(solidTwo_Ends, matWorld, "logicTwo_Ends");
-
-	physDetector_Cylinder = new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicDetector_Cylinder, "Detector_Cylinder", logicWorld, false, 0, true);
-	physDetector_Cylinder_Ends = new G4PVPlacement(0, G4ThreeVector(0., 0., cylinder_height_half + cylinder_thickness/2), logicDetector_Cylinder_Ends, "Detector_Cylinder_Ends", logicWorld, false, 0, true);
-	physDetector_Cylinder_Ends = new G4PVPlacement(0, G4ThreeVector(0., 0., -(cylinder_height_half + cylinder_thickness/2)), logicDetector_Cylinder_Ends, "Detector_Cylinder_Ends", logicWorld, false, 0, true);
 }
 void MyDetectorConstruction::ConstructCsI_3() {
 	G4double CsI_sidelength_half = 0.05/2*m;
 	G4double CsI_height_half = 0.5/2*m;
 	G4double Pb_thickness_half = 0.5/2*mm;
 	//G4double Pb_thickness_half = 1./2*cm;
+	G4double Cable_gap = 1*cm;
+
 	G4Box* solidCsI = new G4Box("solidCsI", CsI_sidelength_half, CsI_sidelength_half,  CsI_height_half);
 	logicCsI = new G4LogicalVolume(solidCsI, CsI, "logicCsI");
 
@@ -746,8 +689,7 @@ void MyDetectorConstruction::ConstructCsI_3() {
 	G4bool is_2 = (strchr(insert_place, '2') != NULL);
 	G4bool is_3 = (strchr(insert_place, '3') != NULL);
 	G4bool is_4 = (strchr(insert_place, '4') != NULL);
-	//G4double shift_Y_Layer1 = 10*Mylar_sidelength_half - (shift_X_Layer1 - 1*cm);
-	G4double shift_Y_Layer1 = 10*Mylar_sidelength_half - (shift_X_Layer1);
+	G4double shift_Y_Layer1 = 10*Mylar_sidelength_half - (shift_X_Layer1 - Cable_gap);
 	G4double shift_X_Layer2 = 2*Mylar_sidelength_half;
 	G4double shift_distance = Mylar_sidelength_half*(number_at_ends-1.);
 
@@ -807,7 +749,7 @@ void MyDetectorConstruction::ConstructCsI_3() {
 	}
 
 	// Define parameters
-	G4double shift_Z_Layer1 = CsI_height_half + 1*cm;
+	G4double shift_Z_Layer1 = CsI_height_half + Cable_gap;
 	shift_distance = Mylar_sidelength_half*(number_at_ends-1.);
 
 	//Transformation
@@ -837,7 +779,6 @@ void MyDetectorConstruction::ConstructCsI_3() {
 		T_Pb4 = transZ_Pb_half*T_Pb4;
 	}
 
-
 	// 2 ends of the Cuboid
 	for (G4int i = 0; i < 2; i++) {
 		G4Rotate3D rotY(180.*i*deg, G4ThreeVector(0., 1., 0.));
@@ -859,26 +800,13 @@ void MyDetectorConstruction::ConstructCsI_3() {
 			physMylar = new G4PVPlacement(rotY*stacking*T_Layer2, logicMylar, "physMylar_End_2", logicWorld, false, i, true);
 		}
 	}
-
 	physCsI = new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicCsI, "physCsI", logicMylar, false, 0, true);
-	
-	G4double cylinder_thickness = 1.*mm;
-	G4double cylinder_radius = 55*cm;
-	G4double cylinder_height_half = cylinder_radius;
-	G4cout << "cylinder_height_half = " << cylinder_height_half << G4endl;
-
-	G4Tubs *solidDetector_Cylinder = new G4Tubs("solidDetector_Cylinder", cylinder_radius, cylinder_radius + cylinder_thickness, cylinder_height_half, 0.*deg, 360.*deg);
-	G4Tubs *solidTwo_Ends = new G4Tubs("solidTwo_Ends", 0.*nm, cylinder_radius, cylinder_thickness/2, 0.*deg, 360.*deg);
-	logicDetector_Cylinder = new G4LogicalVolume(solidDetector_Cylinder, matWorld, "logicDetector_Cylinder");
-	logicDetector_Cylinder_Ends = new G4LogicalVolume(solidTwo_Ends, matWorld, "logicDetector_Cylinder_Ends");
-
-	physDetector_Cylinder = new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicDetector_Cylinder, "Detector_Cylinder", logicWorld, false, 0, true);
-	physDetector_Cylinder_Ends = new G4PVPlacement(0, G4ThreeVector(0., 0., cylinder_height_half + cylinder_thickness/2), logicDetector_Cylinder_Ends, "Detector_Cylinder_Ends", logicWorld, false, 0, true);
-	physDetector_Cylinder_Ends = new G4PVPlacement(0, G4ThreeVector(0., 0., -(cylinder_height_half + cylinder_thickness/2)), logicDetector_Cylinder_Ends, "Detector_Cylinder_Ends", logicWorld, false, 0, true);
 }
 void MyDetectorConstruction::ConstructCsI_4() {
 	G4double CsI_sidelength_half = 0.05/2*m;
 	G4double CsI_height_half = 0.5/2*m;
+	G4double Cable_gap = 1*cm;
+
 	G4Box* solidCsI = new G4Box("solidCsI", CsI_sidelength_half, CsI_sidelength_half,  CsI_height_half);
 	logicCsI = new G4LogicalVolume(solidCsI, CsI, "logicCsI");
 
@@ -892,8 +820,8 @@ void MyDetectorConstruction::ConstructCsI_4() {
 	G4int number_of_side = 4;
 	G4int number_at_ends = 10;
 	G4double delta_theta = 360.*deg/number_of_side;
-	G4double shift_X_Layer1 = 20*cm;
-	G4double shift_Y_Layer1 = 10*Mylar_sidelength_half - (shift_X_Layer1 - 1*cm);
+	G4double shift_X_Layer1 = 10*cm;
+	G4double shift_Y_Layer1 = 10*Mylar_sidelength_half - (shift_X_Layer1 - Cable_gap);
 	G4double shift_X_Layer2 = 2*Mylar_sidelength_half;
 	G4double shift_distance = Mylar_sidelength_half*(number_at_ends-1.);
 	//Transformation
@@ -902,8 +830,8 @@ void MyDetectorConstruction::ConstructCsI_4() {
 	G4Translate3D transX_Layer2(G4ThreeVector(shift_X_Layer2, 0*m, 0*m));
 	G4Translate3D transY(G4ThreeVector(0*m, shift_Y_Layer1, 0*m));
 	G4Transform3D T_Layer1 = transX_Layer1;
-	G4Transform3D T_Layer2 = T_Layer1*transX_Layer2;
-	G4Transform3D T_Layer3 = T_Layer1*transX_Layer2*transX_Layer2;
+	G4Transform3D T_Layer2 = transX_Layer2*transX_Layer1;
+	G4Transform3D T_Layer3 = transX_Layer2*transX_Layer2*T_Layer1;
 
 	// Curved surface of the Cylinder
 	for (G4int i = 0; i < number_of_side; i++) {
@@ -920,82 +848,27 @@ void MyDetectorConstruction::ConstructCsI_4() {
 	// Define parameters
 	//G4int number_at_ends = round((shift_X_Layer3 + Mylar_sidelength_half) / Mylar_sidelength_half + 0.5);		// Minimized
 	//G4int number_at_ends = round((2*shift_X_Layer2+shift_X_Layer1 + Mylar_sidelength_half) / Mylar_sidelength_half + 0.5)+1;
-	G4double shift_Z_Layer1 = CsI_height_half + 1*cm + Mylar_sidelength_half;
+	G4double shift_Z_Layer1 = CsI_height_half + Cable_gap + Mylar_sidelength_half;
 	G4double shift_Z_Layer2 = 2*Mylar_sidelength_half;
 	shift_distance = Mylar_sidelength_half*(number_at_ends-1.);
 	//Transformation
-	G4Rotate3D rotY_90(90*deg, G4ThreeVector(0., 1., 0.));
-	G4Translate3D transZ_plus_Layer1(G4ThreeVector(0*m, 0*m, shift_Z_Layer1));
-	G4Translate3D transZ_plus_Layer2(G4ThreeVector(0*m, 0*m, shift_Z_Layer2));
-	G4Translate3D transZ_minus_Layer1(G4ThreeVector(0*m, 0*m, -shift_Z_Layer1));
-	G4Translate3D transZ_minus_Layer2(G4ThreeVector(0*m, 0*m, -shift_Z_Layer2));
-	G4Transform3D T_plus_Layer1 = transZ_plus_Layer1;
-	G4Transform3D T_plus_Layer2 = transZ_plus_Layer2*transZ_plus_Layer1;
-	G4Transform3D T_plus_Layer3 = transZ_plus_Layer2*transZ_plus_Layer2*transZ_plus_Layer1;
-	G4Transform3D T_minus_Layer1 = transZ_minus_Layer1;
-	G4Transform3D T_minus_Layer2 = transZ_minus_Layer2*transZ_minus_Layer1;
-	G4Transform3D T_minus_Layer3 = transZ_minus_Layer2*transZ_minus_Layer2*transZ_minus_Layer1;
+	G4Rotate3D rotZ_90(90*deg, G4ThreeVector(0., 0., 1.));
+	G4Translate3D transZ_Layer1(G4ThreeVector(0*m, 0*m, shift_Z_Layer1));
+	G4Translate3D transZ_Layer2(G4ThreeVector(0*m, 0*m, shift_Z_Layer2));
+	T_Layer1 = transZ_Layer1;
+	T_Layer2 = transZ_Layer2*transZ_Layer1;
+	T_Layer3 = transZ_Layer2*transZ_Layer2*transZ_Layer1;
 
-	for (G4int i = 0; i < number_at_ends; i++) {
-		G4Translate3D transX(G4ThreeVector(-shift_distance + 2*Mylar_sidelength_half*i, 0*m, 0*m));
-		physMylar = new G4PVPlacement(transX*T_plus_Layer1*rotX_90, logicMylar, "physMylar_F_1", logicWorld, false, i, true);
-		physMylar = new G4PVPlacement(transX*T_minus_Layer1*rotX_90, logicMylar, "physMylar_B_1", logicWorld, false, i, true);
-
-		G4Translate3D transY(G4ThreeVector(0*m, -shift_distance + 2*Mylar_sidelength_half*i, 0*m));
-		physMylar = new G4PVPlacement(transY*T_plus_Layer2*rotY_90, logicMylar, "physMylar_F_2", logicWorld, false, i, true);
-		physMylar = new G4PVPlacement(transY*T_minus_Layer2*rotY_90, logicMylar, "physMylar_B_2", logicWorld, false, i, true);
-
-		physMylar = new G4PVPlacement(transX*T_plus_Layer3*rotX_90, logicMylar, "physMylar_F_2", logicWorld, false, i, true);
-		physMylar = new G4PVPlacement(transX*T_minus_Layer3*rotX_90, logicMylar, "physMylar_B_2", logicWorld, false, i, true);
+	// 2 ends of the Cuboid
+	for (G4int i = 0; i < 2; i++) {
+		G4Rotate3D rotY(180.*i*deg, G4ThreeVector(0., 1., 0.));
+		for (G4int j = 0; j < number_at_ends; j++) {
+			G4Translate3D stacking(G4ThreeVector(-shift_distance + 2*Mylar_sidelength_half*j, 0*m, 0*m));
+			physMylar = new G4PVPlacement(rotY*stacking*T_Layer1*rotX_90, logicMylar, "physMylar_End_1", logicWorld, false, j, true);
+			physMylar = new G4PVPlacement(rotY*rotZ_90*stacking*T_Layer2*rotX_90, logicMylar, "physMylar_End_2", logicWorld, false, j, true);
+			physMylar = new G4PVPlacement(rotY*stacking*T_Layer3*rotX_90, logicMylar, "physMylar_End_3", logicWorld, false, j, true);
+		}
 	}
 	physCsI = new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicCsI, "physCsI", logicMylar, false, 0, true);
-
-	G4double cylinder_thickness = 1.*mm;
-	G4double cylinder_radius = 50*cm;
-	G4double cylinder_height_half = cylinder_radius;
-	G4cout << "cylinder_height_half = " << cylinder_height_half << G4endl;
-
-	G4Tubs *solidDetector_Cylinder = new G4Tubs("solidDetector_Cylinder", cylinder_radius, cylinder_radius + cylinder_thickness, cylinder_height_half, 0.*deg, 360.*deg);
-	G4Tubs *solidTwo_Ends = new G4Tubs("solidTwo_Ends", 0.*nm, cylinder_radius, cylinder_thickness, 0.*deg, 360.*deg);
-	logicDetector_Cylinder = new G4LogicalVolume(solidDetector_Cylinder, matWorld, "logicDetector_Cylinder");
-	logicDetector_Cylinder_Ends = new G4LogicalVolume(solidTwo_Ends, matWorld, "logicDetector_Cylinder_Ends");
-
-	physDetector_Cylinder = new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicDetector_Cylinder, "Detector_Cylinder", logicWorld, false, 0, true);
-	physDetector_Cylinder_Ends = new G4PVPlacement(0, G4ThreeVector(0., 0., cylinder_height_half + cylinder_thickness/2), logicDetector_Cylinder_Ends, "Detector_Cylinder_Ends", logicWorld, false, 0, true);
-	physDetector_Cylinder_Ends = new G4PVPlacement(0, G4ThreeVector(0., 0., -(cylinder_height_half + cylinder_thickness/2)), logicDetector_Cylinder_Ends, "Detector_Cylinder_Ends", logicWorld, false, 0, true);
 }
 // End CsI Detector
-
-// Construct Aerogel, from Eltis
-void MyDetectorConstruction::ConstructSourceScintillator() {
-	//G4double Scintillator_radius = ring_radius+1./2*mm;
-	G4double Scintillator_radius = 6./2*cm;
-	//G4double Scintillator_height = ring_height_half+4.0/2*mm;
-	G4double Scintillator_height = 3./2*cm;
-
-	G4Tubs *solidA = new G4Tubs("A", disk_radius, ring_radius, ring_height_half, 0.*deg, 360.*deg);				//Same as solidRing
-	G4Tubs *solidB = new G4Tubs("B", 0.*nm, disk_radius, disk_height_half, 0.*deg, 360.*deg);					//Same as solidDisk
-	G4UnionSolid *solidInside = new G4UnionSolid("solidInside", solidA, solidB);
-
-	G4Tubs* solidOutside = new G4Tubs("solidOutside", 0.*nm, Scintillator_radius, Scintillator_height, 0.*deg, 360.*deg);
-	G4SubtractionSolid* SourceScintillator_No_Disk_Ring = new G4SubtractionSolid("SourceScintillator_No_Disk_Ring", solidOutside, solidInside);
-	logic_SourceScintillator = new G4LogicalVolume(SourceScintillator_No_Disk_Ring, SiO2, "logic_SourceScintillator");
-	phys_SourceScintillator = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, 0.*m), logic_SourceScintillator, "phys_SourceScintillator", logicWorld, false, 0, true);	
-}
-/*
-void MyDetectorConstruction::ConstructAerogel() {
-G4double size_Scintillator = ring_radius+1./2*mm;
-G4double height_of_Scintillator = ring_height_half+4.0/2*mm;
-//Scintillator
-G4Tubs* BaseSourceScintillator = new G4Tubs("Base", 0. * nm, size_outer_radius, inner_size_of_height + 1.0 / 2 * mm, 0. * deg, 360. * deg);
-G4IntersectionSolid* Intersection_Part_Scintillator = new G4IntersectionSolid("Intersection_Part_Scintillator", BaseSourceScintillator, Foil_Geometry);
-SourceScintillator_SubtractOuter = new G4SubtractionSolid("SourceScintillatorSubtractOuter", BaseSourceScintillator, Intersection_Part_Scintillator);
-//Aerogel
-G4Box* BaseSourceAerogel = new G4Box("base", 5. * cm, 5. * cm, 5. * cm);
-G4SubtractionSolid* SourceAerogel_SubtractInner = new G4SubtractionSolid("SourceAerogelSubtractInner", BaseSourceAerogel, Foil_Geometry);
-AerogelGeometry = new G4SubtractionSolid("AerogelGeometry", SourceAerogel_SubtractInner, SourceScintillator_SubtractOuter);
-logic_SourceAerogel = new G4LogicalVolume(AerogelGeometry, SiO2, "logic_SourceAerogel");
-phys_SourceAerogel = new G4PVPlacement(0, G4ThreeVector(0. * m, 0. * m, 0. * m), logic_SourceAerogel, "phys_SourceAerogel", logicWorld, false, 0, true);
-}
-*/
-// End Aerogel

@@ -1,11 +1,11 @@
 /run/numberOfThreads 2
 /run/initialize
 
-#Enable command echo
+# Enable command echo
 /control/verbose 0
 
-#Set the active region
+# Set the active region of Na-22
 /control/execute region_setup.mac
 
-#Commands below are independent of gps
-/run/beamOn 1
+# Run commands
+/run/beamOn 4
