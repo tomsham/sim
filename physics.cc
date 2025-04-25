@@ -1,23 +1,13 @@
 #include "physics.hh"
 
-MyPhysicsList::MyPhysicsList() {
-	//// define EM_interaction, more physics include more time to simulate
-	//RegisterPhysics(new G4EmStandardPhysics());	// EM Opt0
-	
-	//// define OpticalPhysics to use Optical Photon
-	//RegisterPhysics(new G4OpticalPhysics());
-	//RegisterPhysics(new G4DecayPhysics());
-	//RegisterPhysics(new G4RadioactiveDecayPhysics());
-}
+MyPhysicsList::MyPhysicsList()
+{}
 
 MyPhysicsList::~MyPhysicsList()
 {}
 
 void MyPhysicsList::ConstructParticle()
 {
-	//G4DecayPhysics G4DecayPhysics;
-	//G4DecayPhysics.ConstructParticle();
-
 	G4LeptonConstructor pLeptonConstructor;
 	pLeptonConstructor.ConstructParticle();
 	G4MesonConstructor pMesonConstructor;
@@ -33,7 +23,6 @@ void MyPhysicsList::ConstructParticle()
 
 	G4int ver = 1;
 	G4HadronPhysicsFTFP_BERT pHadronPhysicsFTFP_BERT(ver);	// HadronPhysicsFTFP_BERT
-	//pHadronPhysicsFTFP_BERT.ConstructParticle();
 
 	G4ParaPositronium::ParaPositronium();
 	G4OrthoPositronium::OrthoPositronium();
@@ -46,11 +35,11 @@ void MyPhysicsList::ConstructProcess()
 
 	// Add all physics processes in TFTFP_BERT
 	G4int ver = 1;
-	G4EmStandardPhysics pEM_Opt0(ver);						// EmPhysics_Opt0, including ParaPositronium, OrthoPositronium
+	G4EmStandardPhysics pEM_Opt0(ver);						// EmPhysics_Opt0, including p-Ps, o-Ps
 	pEM_Opt0.ConstructProcess();
 	G4EmExtraPhysics pEmExtraPhysics(ver);					// Synchroton Radiation & GN Physics
 	pEmExtraPhysics.ConstructProcess();
-	G4DecayPhysics pDecayPhysics(ver);						// Decays, including ParaPositronium, OrthoPositronium
+	G4DecayPhysics pDecayPhysics(ver);						// Decays, including p-Ps, o-Ps
 	pDecayPhysics.ConstructProcess();
 	G4HadronElasticPhysics pHadronElasticPhysics(ver);		// Hadron Elastic Physics
 	pHadronElasticPhysics.ConstructProcess();
@@ -66,12 +55,13 @@ void MyPhysicsList::ConstructProcess()
 	// Required Physics for this Project
 	G4RadioactiveDecayPhysics pRadioactiveDecayPhysics;		// RadioactiveDecayPhysics
 	pRadioactiveDecayPhysics.ConstructProcess();
-	MyOpticalPhysics pMyOpticalPhysics;					// OpticalPhysics
+	MyOpticalPhysics pMyOpticalPhysics;						// OpticalPhysics
 	pMyOpticalPhysics.GetProcess();
 	
 	// Assign allowed process for positron
 	G4ProcessManager *positronManager = G4Positron::Positron()->GetProcessManager();
-	positronManager->RemoveProcess(4);		// Remove the G4eplusAnnihilation, the number 4 is from the order in G4EmStandardPhysics
+	// Remove the G4eplusAnnihilation, the number 4 is from the order in G4EmStandardPhysics
+	positronManager->RemoveProcess(4);
 	//positronManager->AddProcess(new G4eMultipleScattering, -1, 1, 1);
 	//positronManager->AddProcess(new G4eIonisation,         -1, 2, 2);
 	//positronManager->AddProcess(new G4eBremsstrahlung,     -1, 3, 3);
@@ -82,7 +72,5 @@ void MyPhysicsList::ConstructProcess()
 void MyPhysicsList::SetCuts()
 {
 	G4ProductionCutsTable::GetProductionCutsTable()->SetEnergyRange(0.*eV, 100.*GeV);
-	
 	//SetCutsWithDefault();		// default cut value  (1.0mm)
 }
-

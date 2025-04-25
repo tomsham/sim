@@ -1,0 +1,4 @@
+/PositroniumProject/block_thickness_half {thick} mm
+/PositroniumProject/setFileName1 {thick}_mm
+/run/reinitializeGeometry
+/control/loop run_loop.mac eKin 0.6 0.6 0.05

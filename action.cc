@@ -1,21 +1,15 @@
 #include "action.hh"
 
-MyActionInitialization::MyActionInitialization()
-{}
+MyActionInitialization::MyActionInitialization(){}
+MyActionInitialization::~MyActionInitialization(){}
 
-MyActionInitialization::~MyActionInitialization()
-{}
-
-void MyActionInitialization::BuildForMaster() const
-{
+void MyActionInitialization::BuildForMaster() const{
 	MyRunAction* runAction = new MyRunAction();
 	SetUserAction(runAction);
 }
 
-void MyActionInitialization::Build() const
-{
-	// Create a object which is a the particle gun that is set by generator.cc
-	// Run the particle gun
+void MyActionInitialization::Build() const{
+	// Create the particle gun that is set by generator.cc
 	MyPrimaryGenerator* generator = new MyPrimaryGenerator();
 	SetUserAction(generator);
 

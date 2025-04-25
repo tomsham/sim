@@ -2,46 +2,38 @@
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4TrackStatus.hh"
-
 #include "G4Electron.hh"
 #include "G4Positron.hh"
 #include "G4ParaPositronium.hh"
 #include "G4OrthoPositronium.hh"
 #include "G4Gamma.hh"
-
 #include "Randomize.hh"
 #include "G4ParticleChangeForGamma.hh"
-
 #include "G4Log.hh"
 #include "G4Exp.hh"
 
 using namespace std;
 
-G4eeToPositroniumModel::G4eeToPositroniumModel(
-    const G4ParticleDefinition*,
-    const G4String& nam)
-    :G4VEmModel(nam),
-    pi_rcl2(pi*classic_electr_radius*classic_electr_radius)
-{
+G4eeToPositroniumModel::G4eeToPositroniumModel(const G4ParticleDefinition*,
+                                               const G4String& nam)
+                                               :G4VEmModel(nam),
+    pi_rcl2(pi*classic_electr_radius*classic_electr_radius){
+
     theGamma = G4Gamma::Gamma();
     theParaPositronium = G4ParaPositronium::ParaPositronium();
     theOrthoPositronium = G4OrthoPositronium::OrthoPositronium();
     fParticleChange = nullptr;
 }
 
-G4eeToPositroniumModel::~G4eeToPositroniumModel()
-{}
+G4eeToPositroniumModel::~G4eeToPositroniumModel(){}
 
-void G4eeToPositroniumModel::Initialise(
-    const G4ParticleDefinition*,
-    const G4DataVector&)
-{
+void G4eeToPositroniumModel::Initialise(const G4ParticleDefinition*,
+                                        const G4DataVector&){
     if (fParticleChange) { return; }
-    fParticleChange = GetParticleChangeForGamma();    // used for discrete electromagnetic processes
+    fParticleChange = GetParticleChangeForGamma(); // used for discrete electromagnetic processes
 }
 
-G4double G4eeToPositroniumModel::ComputeCrossSectionPerElectron(G4double kineticEnergy)
-{
+G4double G4eeToPositroniumModel::ComputeCrossSectionPerElectron(G4double kineticEnergy){
   // Calculates the cross section per electron of annihilation into two photons
   // from the Heilter formula.
 
@@ -58,11 +50,9 @@ G4double G4eeToPositroniumModel::ComputeCrossSectionPerElectron(G4double kinetic
   return cross;  
 }
 
-G4double G4eeToPositroniumModel::ComputeCrossSectionPerAtom(
-                                    const G4ParticleDefinition*,
-                                    G4double kineticEnergy, G4double Z,
-				    G4double, G4double, G4double)
-{
+G4double G4eeToPositroniumModel::ComputeCrossSectionPerAtom(const G4ParticleDefinition*,
+                                                            G4double kineticEnergy, G4double Z,
+				                                            G4double, G4double, G4double){
   // Calculates the cross section per atom of annihilation into two photons
   
   G4double cross = Z*ComputeCrossSectionPerElectron(kineticEnergy);
@@ -70,12 +60,10 @@ G4double G4eeToPositroniumModel::ComputeCrossSectionPerAtom(
 }
 
 
-G4double G4eeToPositroniumModel::CrossSectionPerVolume(
-					const G4Material* material,
-					const G4ParticleDefinition*,
-					      G4double kineticEnergy,
-					      G4double, G4double)
-{
+G4double G4eeToPositroniumModel::CrossSectionPerVolume(const G4Material* material,
+				                                       const G4ParticleDefinition*,
+					                                   G4double kineticEnergy,
+					                                   G4double, G4double){
   // Calculates the cross section per volume of annihilation into two photons
   
   G4double eDensity = material->GetElectronDensity();
@@ -83,21 +71,23 @@ G4double G4eeToPositroniumModel::CrossSectionPerVolume(
   return cross;
 }
 
-void G4eeToPositroniumModel::SampleSecondaries(
-    vector<G4DynamicParticle*>* vdp,
-    const G4MaterialCutsCouple*,
-    const G4DynamicParticle* dp,
-    G4double tmin,
-    G4double maxEnergy)
-{
-    G4double posiKinEnergy = dp->GetKineticEnergy();    // the kinectic energy of positron
+void G4eeToPositroniumModel::SampleSecondaries(vector<G4DynamicParticle*>* vdp,
+                                               const G4MaterialCutsCouple*,
+                                               const G4DynamicParticle* dp,
+                                               G4double tmin,
+                                               G4double maxEnergy){
+    G4double posiKinEnergy = dp->GetKineticEnergy();
     G4DynamicParticle *aPositronium, *aGamma1, *aGamma2;
 
-    CLHEP::HepRandomEngine* rndmEngine = G4Random::getTheEngine();  // "rndmEngine->flat()" returns in range [0, 1)
+    CLHEP::HepRandomEngine* rndmEngine = G4Random::getTheEngine();
 
     // Case 1: less than & equal to 6.8*eV, binding energy of positronium at ground state
     if (posiKinEnergy <= 6.8*eV) {
-        G4double Br_p_Ps = 0.25;        // branching ratio of para-positronium in vacuum
+        // Branching ratio of para-positronium in pure LAB. 
+        // Ref:dx.doi.org/10.1088/1748-0221/9/03/C03028
+        G4double Br_p_Ps = 1-0.5425;       
+        //G4double Br_p_Ps = -0.1;        // test
+
         // momemtum direction for positronium at rest
         G4ThreeVector momentum(0., 0., 0.);
 
@@ -196,7 +186,7 @@ void G4eeToPositroniumModel::SampleSecondaries(
         vdp->push_back(aGamma2);
     }
 
-    // kill primary positron
+    // Kill primary positron
     //G4cout << "Positron is killed" << G4endl;
     //G4cout << "positron KinEnergy: " << posiKinEnergy/keV << "keV" << G4endl;
     fParticleChange->ProposeTrackStatus(fStopAndKill);

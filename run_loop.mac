@@ -1,0 +1,4 @@
+#/PositroniumProject/setFileName0 Acrylic_positron_{eKin}_MeV_
+/PositroniumProject/setFileName0 LAB_positron_{eKin}_MeV_
+/gun/energy {eKin} MeV
+/run/beamOn 100000

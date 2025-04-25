@@ -3,8 +3,7 @@
 
 #include "G4ParticleDefinition.hh"
 
-class G4ParaPositronium : public G4ParticleDefinition
-{
+class G4ParaPositronium : public G4ParticleDefinition{
 private:
 	static G4ParaPositronium* theInstance;
     G4ParaPositronium() {}

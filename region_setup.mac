@@ -17,7 +17,3 @@
 
 #Set the direction distribution of Source
 /gps/ang/type iso
-#/gps/ang/mintheta 0 degree
-#/gps/ang/maxtheta 180 degree
-#/gps/ang/minphi 0 degree
-#/gps/ang/maxphi 360 degree

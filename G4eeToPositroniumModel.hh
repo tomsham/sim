@@ -5,11 +5,8 @@
 
 class G4ParticleChangeForGamma;
 
-class G4eeToPositroniumModel : public G4VEmModel
-{
-
+class G4eeToPositroniumModel : public G4VEmModel{
 public:
-
 	explicit G4eeToPositroniumModel(
 		const G4ParticleDefinition* p = 0,
 		const G4String& nam = "eplus2Ps");
@@ -44,7 +41,6 @@ public:
 		G4double maxEnergy) override;
 
 private:
-
 	// hide assignment operator
 	G4eeToPositroniumModel & operator=(const  G4eeToPositroniumModel &right) = delete;
 	G4eeToPositroniumModel(const  G4eeToPositroniumModel&) = delete;
@@ -56,4 +52,5 @@ private:
 	const G4ParticleDefinition* theOrthoPositronium;
 	G4ParticleChangeForGamma* fParticleChange;
 };
+
 #endif

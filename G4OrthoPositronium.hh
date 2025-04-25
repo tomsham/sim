@@ -3,8 +3,7 @@
 
 #include "G4ParticleDefinition.hh"
 
-class G4OrthoPositronium : public G4ParticleDefinition
-{
+class G4OrthoPositronium : public G4ParticleDefinition{
 private:
 	static G4OrthoPositronium* theInstance;
     G4OrthoPositronium() {}

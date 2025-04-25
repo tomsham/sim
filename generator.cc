@@ -12,26 +12,28 @@ MyPrimaryGenerator::MyPrimaryGenerator(){
 	A = 22;					// Mass number
 	ex_energy = 0.*keV;		// Excitation energy
 
-	// Select particle generator. Options: 0 = fParticleSource, 1 = fParticleGun
+	// Particle generator: 0 = fParticleSource, 1 = fParticleGun
 	PS_or_PG = 0;
 
 	// Set the default parameters for the fParticleSource
-	pdParticleSource = fGeantino;								//options: fGamma, fPositron, fGeantino = fIon
+	// Options: fGamma, fPositron, fGeantino = fIon
+	pdParticleSource = fGeantino;
 	chargeParticleSource = 0.*eplus;
 	fParticleSource->SetParticleCharge(chargeParticleSource);
 	fParticleSource->SetParticleDefinition(pdParticleSource);
 
 	// Set the default parameters for the fParticleGun
-	pdParticleGun = fGamma;									//options: fGamma, fPositron, fGeantino = fIon, fo_Ps, fp_Ps
-	//posParticleGun = G4ThreeVector(0.*cm, 0.*cm, 0.*cm);
-	posParticleGun = G4ThreeVector(0.*cm, 0.*cm, 0.*cm-1*mm);
+	// options: fGamma, fPositron, fElectron, fGeantino = fIon, fo_Ps, fp_Ps
+	pdParticleGun = fPositron;
+	posParticleGun = G4ThreeVector(0.*cm, 0.*cm, 0.*cm);
 	momDirectionParticleGun = G4ThreeVector(0., 0., 1.);
-	kinParticleGun = 1.2746*MeV;
+	kinParticleGun = 1.*MeV;
 	chargeParticleGun = 0.*eplus;
 	fParticleGun->SetParticlePosition(posParticleGun);
 	fParticleGun->SetParticleMomentumDirection(momDirectionParticleGun);
 	//fParticleGun->SetParticleMomentum(momParticleGun);
-	fParticleGun->SetParticleEnergy(kinParticleGun);			//set the KineticEnergy of particle
+	// Set the KineticEnergy of particle
+	fParticleGun->SetParticleEnergy(kinParticleGun);
 	fParticleGun->SetParticleCharge(chargeParticleGun);
 	fParticleGun->SetParticleDefinition(pdParticleGun);
 }
@@ -45,6 +47,7 @@ MyPrimaryGenerator::~MyPrimaryGenerator(){
 void MyPrimaryGenerator::ParticleDefinition(){
 	fGamma = G4ParticleTable::GetParticleTable()->FindParticle("gamma");
 	fPositron = G4ParticleTable::GetParticleTable()->FindParticle("e+");
+	fElectron = G4ParticleTable::GetParticleTable()->FindParticle("e-");
 	fGeantino = G4ParticleTable::GetParticleTable()->FindParticle("geantino");
 	fo_Ps = G4OrthoPositronium::Definition();
 	fp_Ps = G4ParaPositronium::Definition();
@@ -60,7 +63,8 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event* anEvent){
 			fIon = G4IonTable::GetIonTable()->GetIon(Z, A, ex_energy);
 			fParticleSource->SetParticleDefinition(fIon);
 
-			//fParticleSource->SetVerbosity(2);				// Turn on verbose mode and set the level 2, for debugging
+			// Turn on verbose mode and set the level 2, for debugging
+			//fParticleSource->SetVerbosity(2);				
 			fParticleSource->GeneratePrimaryVertex(anEvent);
 		}else
 			fParticleSource->GeneratePrimaryVertex(anEvent);

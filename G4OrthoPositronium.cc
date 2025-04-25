@@ -7,7 +7,7 @@
 
 G4OrthoPositronium* G4OrthoPositronium::theInstance = 0;
 
-G4OrthoPositronium* G4OrthoPositronium::Definition() {
+G4OrthoPositronium* G4OrthoPositronium::Definition(){
 	if (theInstance !=0) return theInstance;
 
 	const G4String name = "o-Ps";
@@ -47,10 +47,10 @@ G4OrthoPositronium* G4OrthoPositronium::Definition() {
 	return theInstance;
 }
 
-G4OrthoPositronium* G4OrthoPositronium::OrthoPositroniumDefinition() {
+G4OrthoPositronium* G4OrthoPositronium::OrthoPositroniumDefinition(){
 	return Definition();
 }
 
-G4OrthoPositronium* G4OrthoPositronium::OrthoPositronium() {
+G4OrthoPositronium* G4OrthoPositronium::OrthoPositronium(){
 	return Definition();
 }

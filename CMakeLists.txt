@@ -1,4 +1,5 @@
-#create a Cmake project, this line tells Cmake which is the minimum Cmake version that required to compile the code
+#create a Cmake project, this line tells Cmake which is the minimum Cmake version 
+#that required to compile the code
 cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 
 #set the name of this project
@@ -29,4 +30,3 @@ target_link_libraries(sim ${Geant4_LIBRARIES})
 #tell Cmake the custom target is this project (Simulation), and run all the commands that is needed
 #(This function is not well understood, learn CMake for more information)
 add_custom_target(Simulation DEPENDS sim)
-

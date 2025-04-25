@@ -1,0 +1,6 @@
+/run/numberOfThreads 16
+/run/initialize
+/control/verbose 0
+
+/control/loop run_loop2.mac thick 2.1 2.1 0.1
+#/control/loop run_loop.mac eKin 0.05 0.6 0.05

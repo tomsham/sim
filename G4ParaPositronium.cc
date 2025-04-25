@@ -7,7 +7,7 @@
 
 G4ParaPositronium* G4ParaPositronium::theInstance = 0;
 
-G4ParaPositronium* G4ParaPositronium::Definition() {
+G4ParaPositronium* G4ParaPositronium::Definition(){
 	if (theInstance !=0) return theInstance;
 
 	const G4String name = "p-Ps";
@@ -47,10 +47,10 @@ G4ParaPositronium* G4ParaPositronium::Definition() {
 	return theInstance;
 }
 
-G4ParaPositronium* G4ParaPositronium::ParaPositroniumDefinition() {
+G4ParaPositronium* G4ParaPositronium::ParaPositroniumDefinition(){
 	return Definition();
 }
 
-G4ParaPositronium* G4ParaPositronium::ParaPositronium() {
+G4ParaPositronium* G4ParaPositronium::ParaPositronium(){
 	return Definition();
 }

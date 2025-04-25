@@ -34,20 +34,18 @@
 #include "G4eeToPositroniumModel.hh"
 #include "G4eeToPositronium.hh"
 
-// G4OpticalPhysics::ConstructProcess() is protected, so using MyOpticalPhysics to inherit from G4OpticalPhysics to call the function ConstructProcess().
-class MyOpticalPhysics : public G4OpticalPhysics
-{
+// G4OpticalPhysics::ConstructProcess() is protected, so using MyOpticalPhysics 
+// to inherit from G4OpticalPhysics to call the function ConstructProcess().
+class MyOpticalPhysics : public G4OpticalPhysics{
 public:
 	MyOpticalPhysics() {};
 	~MyOpticalPhysics() {};
-	void GetProcess()
-	{
+	void GetProcess(){
 		ConstructProcess();
 	}
 };
 
-class MyPhysicsList : public G4VModularPhysicsList
-{
+class MyPhysicsList : public G4VModularPhysicsList{
 public:
 	MyPhysicsList();
 	~MyPhysicsList();
